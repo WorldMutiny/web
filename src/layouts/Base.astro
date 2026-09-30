@@ -41,7 +41,7 @@ const THEMES = [
     <a class="brand" href={path(lang, '/')} aria-label="Mutiny"><img class="icon" src="/icon.svg" alt="" width="30" height="30" /><img class="word" src="/logo.svg" alt="Mutiny" height="26" /></a>
     <nav class="links">
       <a href={path(lang, '/manifesto/')}>{t.nav.manifesto}</a>
-      <a href={`https://github.com/worldmutiny/mutiny/blob/main/${lang === 'es' ? 'TUTORIAL_ES.md' : 'TUTORIAL.md'}`}>{t.nav.manual}</a>
+      <a href={path(lang, '/manual/')}>{t.nav.manual}</a>
       <a href="https://github.com/worldmutiny/mutiny">{t.nav.github}</a>
     </nav>
     <div class="tools">
@@ -70,6 +70,7 @@ const THEMES = [
       <p class="foot-links">
         <a href="https://github.com/worldmutiny/mutiny">GitHub</a> ·
         <a href={path(lang, '/manifesto/')}>{t.nav.manifesto}</a> ·
+        <a href={path(lang, '/manual/')}>{t.nav.manual}</a> ·
         {t.footer.contact}: <span class="mail">mutiny@worldmutiny.com</span>
       </p>
       <p class="fine">{t.footer.privacy}</p>

@@ -1,0 +1,14 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ManualPage from '../../../components/ManualPage.astro';
+import { manual } from '../../../lib/manual';
+
+export function getStaticPaths() {
+  return manual('es').map((c, index) => ({ params: { chapter: c.slug || undefined }, props: { index } }));
+}
+const { index } = Astro.props;
+const here = manual('es')[index];
+const there = manual('en')[index];
+const alt = '/manual/' + (there && there.slug ? there.slug + '/' : '');
+---
+<Base lang="es" alt={alt} title={`${here.title} — Mutiny Manual`}><ManualPage lang="es" index={index} /></Base>
