@@ -1,0 +1,86 @@
+/* worldmutiny.com — the site wears Mutiny's own themes. Each theme sets its
+   base colours; the rest are mixed from them, like the app does. The logo
+   keeps its red and teal on every one. */
+
+@font-face { font-family: 'iA Writer Duo'; src: url('/fonts/iAWriterDuoS-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'iA Writer Duo'; src: url('/fonts/iAWriterDuoS-Italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'iA Writer Duo'; src: url('/fonts/iAWriterDuoS-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'iA Writer Duo'; src: url('/fonts/iAWriterDuoS-BoldItalic.woff2') format('woff2'); font-weight: 700; font-style: italic; font-display: swap; }
+
+:root, [data-theme='mutiny'] {
+  --bg: #0e091d; --fg: #14B9B5; --strong: #66d2cf; --accent: #BE3F50; --accent-ink: #ffffff;
+}
+[data-theme='blackgold'] { --bg: #0D0D0D; --fg: #ebdbb2; --strong: #F6F1DD; --accent: #BFA75D; --accent-ink: #0D0D0D; }
+[data-theme='black-arch'] { --bg: #000000; --fg: #D4D4D4; --strong: #FFFFFF; --accent: #989898; --accent-ink: #000000; }
+[data-theme='matrix'] { --bg: #080C09; --fg: #8BC98C; --strong: #C5E6C6; --accent: #3CBF5C; --accent-ink: #080C09; }
+[data-theme='tokyo-night'] { --bg: #1a1b26; --fg: #a9b1d6; --strong: #c0caf5; --accent: #7aa2f7; --accent-ink: #1a1b26; }
+[data-theme='city-783'] { --bg: #181a1f; --fg: #b9bec6; --strong: #eceff2; --accent: #ad2222; --accent-ink: #ffffff; }
+
+:root {
+  color-scheme: dark;
+  --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
+  --faint: color-mix(in srgb, var(--fg) 38%, var(--bg));
+  --line: color-mix(in srgb, var(--fg) 16%, var(--bg));
+  --surface: color-mix(in srgb, var(--fg) 5%, var(--bg));
+  --surface-2: color-mix(in srgb, var(--fg) 9%, var(--bg));
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  --font: 'iA Writer Duo', ui-monospace, 'SF Mono', 'DejaVu Sans Mono', monospace;
+  --wide: 1120px;
+  --text: 70ch;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font);
+  font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased;
+  padding-inline: 16px;
+}
+::selection { background: color-mix(in srgb, var(--accent) 40%, transparent); color: var(--strong); }
+a { color: var(--strong); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--strong) 35%, transparent); text-underline-offset: 4px; }
+a:hover { text-decoration-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+img { max-width: 100%; }
+code { font-family: var(--font); font-size: 0.9em; background: var(--surface-2); padding: 1px 6px; border-radius: 3px; overflow-wrap: anywhere; }
+
+.wrap { max-width: var(--wide); margin: 0 auto; }
+.kicker { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+h1, h2, h3 { color: var(--strong); text-wrap: balance; line-height: 1.2; }
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 11px 20px; font: inherit; font-size: 15px;
+  text-decoration: none; border: 1px solid var(--line); color: var(--strong); background: var(--surface);
+  border-radius: 3px; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.btn:hover { border-color: var(--strong); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.btn.primary:hover { filter: brightness(1.1); }
+
+/* sections */
+section.block { padding-block: clamp(64px, 11vw, 120px); border-top: 1px solid var(--line); }
+section.block > .wrap > h2 { font-size: clamp(28px, 4.6vw, 46px); margin: 0 0 22px; }
+
+/* the CRT: faint scanlines over the hero */
+.scan { position: relative; isolation: isolate; }
+.scan::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, color-mix(in srgb, var(--bg) 55%, transparent) 2px 3px);
+  opacity: .35;
+}
+
+/* the logo catches a stray signal now and then */
+.glitch { animation: glitch 7s steps(1) infinite; }
+@keyframes glitch {
+  0%, 93%, 100% { transform: none; filter: none; }
+  94% { transform: translate(-3px, 1px) skewX(-2deg); filter: hue-rotate(-12deg) saturate(1.3); }
+  95% { transform: translate(4px, -1px); }
+  96% { transform: translate(-1px, 0) skewX(1deg); filter: brightness(1.25); }
+  97% { transform: none; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .glitch { animation: none; }
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

@@ -1,0 +1,146 @@
+---
+// Every page: head, the menu (logo, links, theme, language, download) and the footer.
+import '../styles/global.css';
+import { T, path, type Lang } from '../i18n';
+
+interface Props { lang: Lang; title?: string; description?: string; alt: string }
+const { lang, title, description, alt } = Astro.props;
+const t = T[lang];
+const pageTitle = title || t.htmlTitle;
+const desc = description || t.description;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const THEMES = [
+  ['mutiny', 'Mutiny', '#0e091d', '#BE3F50'], ['blackgold', 'BlackGold', '#0D0D0D', '#BFA75D'], ['black-arch', 'Black Arch', '#000000', '#989898'],
+  ['matrix', 'Matrix', '#080C09', '#3CBF5C'], ['tokyo-night', 'Tokyo Night', '#1a1b26', '#7aa2f7'], ['city-783', 'City 783', '#181a1f', '#ad2222']
+];
+---
+<!doctype html>
+<html lang={lang} data-theme="mutiny">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={desc} />
+  <link rel="canonical" href={canonical} />
+  <link rel="alternate" hreflang={lang === 'en' ? 'es' : 'en'} href={new URL(alt, Astro.site).href} />
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0e091d" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={desc} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={new URL('/icon-512.png', Astro.site).href} />
+  <link rel="preload" href="/fonts/iAWriterDuoS-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <script src="/theme-boot.js" is:inline></script>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <header class="nav wrap">
+    <a class="brand" href={path(lang, '/')} aria-label="Mutiny"><img class="icon" src="/icon.svg" alt="" width="30" height="30" /><img class="word" src="/logo.svg" alt="Mutiny" height="26" /></a>
+    <nav class="links">
+      <a href={path(lang, '/manifesto/')}>{t.nav.manifesto}</a>
+      <a href={`https://github.com/worldmutiny/mutiny/blob/main/${lang === 'es' ? 'TUTORIAL_ES.md' : 'TUTORIAL.md'}`}>{t.nav.manual}</a>
+      <a href="https://github.com/worldmutiny/mutiny">{t.nav.github}</a>
+    </nav>
+    <div class="tools">
+      <div class="themes">
+        <button type="button" class="theme-btn" aria-expanded="false" aria-controls="theme-menu" title={t.nav.theme}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" shape-rendering="crispEdges"><rect x="1" y="1" width="6" height="6" fill="#BE3F50"/><rect x="9" y="1" width="6" height="6" fill="#14B9B5"/><rect x="1" y="9" width="6" height="6" fill="#BFA75D"/><rect x="9" y="9" width="6" height="6" fill="#7aa2f7"/></svg>
+          <span class="sr-only">{t.nav.theme}</span>
+        </button>
+        <div class="theme-menu" id="theme-menu" hidden>
+          {THEMES.map(([id, name, bg, ac]) => (
+            <button type="button" data-theme-pick={id}><i style={`background:${bg};border-color:${ac}`}><b style={`background:${ac}`}></b></i>{name}</button>
+          ))}
+        </div>
+      </div>
+      <a class="lang" href={alt} hreflang={lang === 'en' ? 'es' : 'en'} title={t.nav.otherLangName}>{t.nav.otherLang}</a>
+      <a class="btn primary small" href={path(lang, '/#download')}>{t.nav.download}</a>
+    </div>
+  </header>
+
+  <main id="main"><slot /></main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <img src="/logo.svg" alt="Mutiny" height="28" />
+      <p>{t.footer.line}</p>
+      <p class="foot-links">
+        <a href="https://github.com/worldmutiny/mutiny">GitHub</a> ·
+        <a href={path(lang, '/manifesto/')}>{t.nav.manifesto}</a> ·
+        {t.footer.contact}: <span class="mail">mutiny@worldmutiny.com</span>
+      </p>
+      <p class="fine">{t.footer.privacy}</p>
+    </div>
+  </footer>
+
+  <script>
+    // the theme menu: pick one and the whole site changes, like the app
+    const btn = document.querySelector<HTMLButtonElement>('.theme-btn');
+    const menu = document.querySelector<HTMLElement>('#theme-menu');
+    const mark = () => {
+      const now = document.documentElement.getAttribute('data-theme');
+      menu?.querySelectorAll('[data-theme-pick]').forEach((b) => b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-pick') === now)));
+    };
+    btn?.addEventListener('click', () => {
+      const open = menu!.hidden;
+      menu!.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      mark();
+    });
+    menu?.addEventListener('click', (e) => {
+      const pick = (e.target as HTMLElement).closest<HTMLElement>('[data-theme-pick]');
+      if (!pick) return;
+      const id = pick.dataset.themePick!;
+      document.documentElement.setAttribute('data-theme', id);
+      try { localStorage.setItem('mutiny-theme', id); } catch { /* storage blocked */ }
+      mark();
+    });
+    document.addEventListener('click', (e) => {
+      if (menu && !menu.hidden && !(e.target as HTMLElement).closest('.themes')) { menu.hidden = true; btn?.setAttribute('aria-expanded', 'false'); }
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu && !menu.hidden) { menu.hidden = true; btn?.focus(); } });
+  </script>
+</body>
+</html>
+
+<style>
+  .nav { display: flex; align-items: center; gap: 28px; padding-block: 18px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; flex: none; }
+  .brand img { display: block; image-rendering: pixelated; }
+  .brand .word { height: 26px; width: auto; }
+  .brand .icon { display: none; }
+  .links { display: flex; gap: 22px; font-size: 14px; }
+  .links a, .lang { color: var(--fg); text-decoration: none; }
+  .links a:hover, .lang:hover { color: var(--strong); }
+  .tools { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .lang { font-size: 14px; border: 1px solid var(--line); padding: 4px 9px; border-radius: 3px; }
+  .btn.small { padding: 7px 14px; font-size: 14px; }
+  .themes { position: relative; }
+  .theme-btn { background: none; border: 1px solid var(--line); padding: 6px 7px; border-radius: 3px; cursor: pointer; display: grid; place-items: center; }
+  .theme-btn:hover { border-color: var(--strong); }
+  .theme-menu {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 4px; padding: 6px; display: grid; gap: 2px; min-width: 190px; box-shadow: 0 12px 30px rgba(0,0,0,.45);
+  }
+  .theme-menu[hidden] { display: none; }
+  .theme-menu button { display: flex; align-items: center; gap: 10px; background: none; border: none; color: var(--fg); font: inherit; font-size: 14px; padding: 7px 9px; border-radius: 3px; cursor: pointer; text-align: left; }
+  .theme-menu button:hover, .theme-menu button[aria-pressed='true'] { background: var(--surface-2); color: var(--strong); }
+  .theme-menu i { width: 22px; height: 16px; border: 2px solid; display: grid; place-items: center; flex: none; }
+  .theme-menu b { width: 6px; height: 6px; display: block; }
+  .foot { border-top: 1px solid var(--line); padding-block: 44px 56px; margin-top: 0; }
+  .foot-in { display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: var(--muted); }
+  .foot-in img { height: 28px; width: auto; align-self: flex-start; image-rendering: pixelated; }
+  .foot-in p { margin: 0; max-width: var(--text); }
+  .foot-links a { color: var(--fg); }
+  .mail { color: var(--strong); user-select: all; }
+  .fine { font-size: 12.5px; color: var(--faint); }
+  @media (max-width: 820px) {
+    .nav { flex-wrap: wrap; gap: 14px 20px; }
+    .links { order: 3; width: 100%; }
+    .brand .word { display: none; }
+    .brand .icon { display: block; }
+  }
+</style>

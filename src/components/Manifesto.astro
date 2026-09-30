@@ -1,0 +1,39 @@
+---
+// The whole manifesto, and why Mutiny — the same text as MANIFESTO.md
+import { T, path, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const m = T[lang].manifesto;
+---
+<article class="wrap page">
+  <img class="logo glitch" src="/logo.svg" alt="Mutiny" width="520" height="144" />
+  <p class="kicker">{m.kicker}</p>
+  <h1>{m.title}</h1>
+  <p class="intro">{m.intro}</p>
+  <ol>
+    {m.principles.map(([head, body]) => <li><h2>{head}</h2><p>{body}</p></li>)}
+  </ol>
+  <p class="join">{m.close}</p>
+  <p class="sign">{m.sign}</p>
+
+  <h2 class="why-title">{m.whyTitle}</h2>
+  {m.why.map(([q, a]) => <section class="why"><h3>{q}</h3><p>{a}</p></section>)}
+  <p class="cta"><a class="btn primary" href={path(lang, '/#download')}>↓ {T[lang].nav.download}</a></p>
+</article>
+
+<style>
+  .page { max-width: 760px; padding-block: 48px 90px; }
+  .logo { width: min(520px, 100%); height: auto; image-rendering: pixelated; margin-bottom: 36px; }
+  h1 { font-size: clamp(30px, 5.4vw, 52px); margin: 0 0 22px; }
+  .intro { font-size: clamp(19px, 2.4vw, 24px); color: var(--strong); line-height: 1.45; margin: 0 0 40px; }
+  ol { padding-left: 1.6em; margin: 0; display: grid; gap: 28px; }
+  ol li::marker { color: var(--accent); }
+  ol h2 { font-size: 21px; margin: 0 0 6px; }
+  ol p, .why p { margin: 0; }
+  .join { font-size: clamp(24px, 3.4vw, 32px); color: var(--accent); font-weight: 700; margin: 48px 0 4px; }
+  .sign { font-style: italic; color: var(--muted); margin: 0; }
+  .why-title { font-size: clamp(24px, 3.6vw, 34px); margin: 72px 0 8px; padding-top: 40px; border-top: 1px solid var(--line); }
+  .why { padding-block: 16px; }
+  .why h3 { margin: 0 0 6px; font-size: 19px; }
+  .cta { margin-top: 36px; }
+</style>

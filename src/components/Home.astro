@@ -1,0 +1,134 @@
+---
+// The home page, in either language: the hero, the manifesto, the download.
+import { T, path, type Lang } from '../i18n';
+import { latestRelease, mb } from '../data/release';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang];
+const rel = await latestRelease();
+const byOs = (os: string) => rel.assets.filter((a) => a.os === os);
+const OS = [
+  { id: 'linux', name: 'Linux', steps: t.download.steps.linux },
+  { id: 'mac', name: 'macOS', steps: t.download.steps.mac },
+  { id: 'windows', name: 'Windows', steps: t.download.steps.windows }
+];
+const num = (i: number) => String(i + 1).padStart(2, '0');
+---
+<section class="hero scan">
+  <div class="wrap hero-in">
+    {rel.version && <a class="announce" href={rel.url}>{t.announce(rel.version)} <span aria-hidden="true">→</span></a>}
+    <img class="hero-logo glitch" src="/logo.svg" alt="Mutiny" width="720" height="200" />
+    <h1>{t.hero.title.split(/(?<=\.) /).map((line) => <span>{line}</span>)}</h1>
+    <p class="sub">{t.hero.sub}</p>
+    <div class="cta">
+      <a class="btn primary" href="#download">↓ {t.hero.download}</a>
+      <a class="btn" href="#manifesto">{t.hero.manifesto}</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="manifesto">
+  <div class="wrap">
+    <p class="kicker">{t.manifesto.kicker}</p>
+    <h2>{t.manifesto.title}</h2>
+    <p class="intro">{t.manifesto.intro}</p>
+    <ol class="principles">
+      {t.manifesto.principles.map(([head, body], i) => (
+        <li><span class="n">{num(i)}</span><div><h3>{head}</h3><p>{body}</p></div></li>
+      ))}
+    </ol>
+    <div class="close">
+      <p class="join">{t.manifesto.close}</p>
+      <p class="sign">{t.manifesto.sign}</p>
+      <a href={path(lang, '/manifesto/')}>{t.manifesto.readAll} →</a>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="download">
+  <div class="wrap">
+    <p class="kicker">{t.download.kicker}</p>
+    <h2>{t.download.title}</h2>
+    <p class="lead">{rel.version ? t.download.sub(rel.version) : ''}</p>
+    {rel.assets.length ? (
+      <div class="systems">
+        {OS.map((o) => (
+          <article class="sys" data-os={o.id}>
+            <p class="yours">{t.download.yours}</p>
+            <h3>{o.name}</h3>
+            <div class="files">
+              {byOs(o.id).map((a, j) => (
+                <a class={'btn' + (j === 0 ? ' primary' : '')} href={a.url}>↓ {a.label} <span class="size">{mb(a.size)}</span></a>
+              ))}
+            </div>
+            <p class="steps">{o.steps}</p>
+            <details>
+              <summary>{t.download.verify}</summary>
+              <ul>{byOs(o.id).map((a) => <li><span>{a.name}</span><code>{a.sha256}</code></li>)}</ul>
+            </details>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p><a class="btn primary" href={rel.url}>↓ {t.hero.download}</a></p>
+    )}
+    <p class="unsigned">{t.download.unsigned}</p>
+    <p class="more"><a href={rel.url}>{t.download.all}</a> · <a href="https://github.com/worldmutiny/mutiny">{t.download.source}</a></p>
+  </div>
+</section>
+
+<script>
+  // put the visitor's own system first, and say so
+  const ua = navigator.userAgent;
+  const os = /Mac/i.test(ua) ? 'mac' : /Win/i.test(ua) ? 'windows' : /Linux|X11|CrOS/i.test(ua) ? 'linux' : '';
+  const card = os && document.querySelector<HTMLElement>(`.sys[data-os="${os}"]`);
+  if (card) { card.classList.add('mine'); card.parentElement!.prepend(card); }
+</script>
+
+<style>
+  .hero { padding-block: clamp(40px, 9vw, 110px) clamp(56px, 10vw, 120px); text-align: center; }
+  .hero-in { display: flex; flex-direction: column; align-items: center; gap: 24px; position: relative; z-index: 1; }
+  .announce {
+    font-size: 13px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); padding: 5px 12px; border-radius: 3px;
+    background: var(--surface);
+  }
+  .announce:hover { border-color: var(--accent); color: var(--strong); }
+  .hero-logo { width: min(720px, 92%); height: auto; image-rendering: pixelated; margin-block: 10px 6px; }
+  .hero h1 { font-size: clamp(26px, 5vw, 50px); margin: 0; }
+  .hero h1 span { display: block; }
+  .sub { color: var(--fg); max-width: 60ch; margin: 0; font-size: clamp(15px, 1.8vw, 18px); }
+  .cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+
+  .intro { font-size: clamp(19px, 2.4vw, 25px); color: var(--strong); max-width: 46ch; margin: 0 0 44px; line-height: 1.45; }
+  .principles { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 44px; }
+  .principles li:last-child { grid-column: 1 / -1; }
+  @media (max-width: 700px) { .principles { grid-template-columns: 1fr; } }
+  .principles li { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 22px 0; border-top: 1px solid var(--line); }
+  .principles .n { color: var(--accent); font-size: 14px; padding-top: 3px; }
+  .principles h3 { font-size: 19px; margin: 0 0 6px; }
+  .principles p { margin: 0; color: var(--fg); }
+  .close { margin-top: 40px; display: flex; flex-direction: column; gap: 4px; }
+  .join { font-size: clamp(22px, 3vw, 30px); color: var(--accent); font-weight: 700; margin: 0; }
+  .sign { font-style: italic; color: var(--muted); margin: 0 0 14px; }
+
+  .lead { color: var(--fg); margin: -8px 0 30px; }
+  .systems { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .sys { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .sys h3 { margin: 0; font-size: 22px; }
+  .yours { display: none; margin: 0; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+  .sys.mine { border-color: var(--accent); background: var(--accent-soft); }
+  .sys.mine .yours { display: block; }
+  .files { display: flex; flex-direction: column; gap: 8px; }
+  .files .btn { justify-content: space-between; font-size: 14px; }
+  .files .btn:not(.primary) { background: transparent; }
+  .size { opacity: .7; font-weight: 400; }
+  .steps { margin: 0; font-size: 13.5px; color: var(--muted); }
+  details { font-size: 12.5px; color: var(--muted); }
+  summary { cursor: pointer; }
+  details ul { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 8px; }
+  details li { display: grid; gap: 2px; }
+  details code { font-size: 11px; }
+  .unsigned { color: var(--muted); font-size: 14px; margin: 26px 0 6px; max-width: var(--text); }
+  .more { font-size: 14px; margin: 0; }
+</style>

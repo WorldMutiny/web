@@ -1,0 +1,34 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  # the download buttons read the latest Mutiny release at build time; the app's
+  # release workflow can also trigger this one after publishing
+  repository_dispatch:
+    types: [mutiny-release]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy
+        if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
+        run: |
+          npx --yes wrangler@4 pages project create worldmutiny --production-branch main 2>/dev/null || true
+          npx --yes wrangler@4 pages deploy dist --project-name worldmutiny --branch main
+      - name: Not deployed yet
+        if: env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == ''
+        run: echo "::notice::Built, not deployed — add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to the repository secrets."
