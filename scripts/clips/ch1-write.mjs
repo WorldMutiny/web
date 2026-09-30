@@ -1,0 +1,22 @@
+export default async (a) => {
+  await a.eval(`await backToShelf(); library.writingStyle='pantser'; library.lastTemplate={kind:'essay',form:'peterson'}; await new Promise(r=>setTimeout(r,500));`);
+  await a.wait(700);
+  await a.eval(`document.querySelector('#new-text-btn').click();`); await a.wait(900);
+  await a.eval(`document.querySelector('.new-text-modal .m-ok').click();`); await a.wait(1400);
+  await a.eval(`document.querySelector('#tp-title').focus();`);
+  await a.type('Words start mutinies', 55);
+  await a.key('Enter'); await a.wait(300); await a.eval(`document.querySelector('#paper-scroll').scrollTop=0;`); await a.wait(200);
+  await a.eval(`const b=document.querySelector('.chapter-body'); b.focus(); const r=document.createRange(); r.selectNodeContents(b); r.collapse(true); getSelection().removeAllRanges(); getSelection().addRange(r);`);
+  await a.type('Every change started as a sentence someone was afraid to write. Laws, revolutions and love letters were all written first', 30);
+  await a.wait(300);
+  await a.key('X', 10, 'KeyX'); await a.wait(900);
+  await a.type('Find a source for this', 50);
+  await a.wait(900);
+  await a.eval(`document.activeElement.blur(); const b=document.querySelector('.chapter-body'); b.focus(); const r=document.createRange(); r.selectNodeContents(b); r.collapse(false); getSelection().removeAllRanges(); getSelection().addRange(r);`);
+  await a.wait(500);
+  await a.type('. If the world is broken, the fix begins on a page.', 30);
+  await a.wait(600);
+  await a.eval(`const p=document.querySelector('.chapter-body p'); const t=p.firstChild; const r=document.createRange(); r.setStart(t,6); r.setEnd(t,12); const b=r.getBoundingClientRect(); p.dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:b.left+10,clientY:b.top+8}));`);
+  await a.wait(2200);
+  await a.eval(`document.querySelector('.ctx-menu')?.remove();`);
+};

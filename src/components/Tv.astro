@@ -1,0 +1,177 @@
+---
+// See it in action: the real app on an old CRT. Five channels; static between
+// them; it turns on when you reach it, pauses when you scroll away, and flips
+// to the next channel when a clip ends.
+import { T, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const a = T[lang].action;
+const CLIPS = ['ch1-write', 'ch2-critique', 'ch3-versions', 'ch4-templates', 'ch5-themes'];
+const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[i], n: String(i + 1).padStart(2, '0') }));
+---
+<section class="block" id="action">
+  <div class="wrap">
+    <p class="kicker">{a.kicker}</p>
+    <h2>{a.title}</h2>
+    <p class="lead">{a.sub}</p>
+
+    <div class="tv" data-channels={JSON.stringify(channels)}>
+      <div class="bezel">
+        <div class="screen">
+          <video muted playsinline preload="none" poster={`/clips/${CLIPS[0]}.jpg`} aria-label={`${a.channel} 01 · ${channels[0].name}`}></video>
+          <canvas class="static" width="160" height="100" aria-hidden="true"></canvas>
+          <div class="osd" aria-hidden="true"><span class="osd-ch">CH 01</span> <span class="osd-name">{channels[0].name}</span></div>
+          <div class="fx scan" aria-hidden="true"></div>
+          <div class="fx vignette" aria-hidden="true"></div>
+          <div class="fx glass" aria-hidden="true"></div>
+          <div class="fx turnon" aria-hidden="true"></div>
+        </div>
+        <div class="panel">
+          <img class="badge" src="/logo.svg" alt="" height="16" />
+          <div class="keys" role="group" aria-label={a.channel}>
+            {channels.map((c, i) => (
+              <button type="button" class="key" data-ch={i} aria-pressed={i === 0 ? 'true' : 'false'} title={`${a.channel} ${c.n} · ${c.name}`}>
+                <span class="kn">{c.n}</span><span class="kl">{c.name}</span>
+              </button>
+            ))}
+          </div>
+          <button type="button" class="power" aria-label={a.power}><i class="led"></i></button>
+        </div>
+      </div>
+      <p class="caption" aria-live="polite">{channels[0].desc}</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tv = document.querySelector<HTMLElement>('.tv')!;
+  const chans: { name: string; desc: string; clip: string; n: string }[] = JSON.parse(tv.dataset.channels!);
+  const video = tv.querySelector('video')!;
+  const canvas = tv.querySelector<HTMLCanvasElement>('.static')!;
+  const ctx = canvas.getContext('2d')!;
+  const osd = tv.querySelector<HTMLElement>('.osd')!;
+  const caption = tv.querySelector<HTMLElement>('.caption')!;
+  const keys = [...tv.querySelectorAll<HTMLButtonElement>('.key')];
+  const power = tv.querySelector<HTMLButtonElement>('.power')!;
+  const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const webm = video.canPlayType('video/webm; codecs="vp9"') !== '';
+  let current = 0, on = false, visible = false, noiseUntil = 0, osdTimer = 0;
+
+  // snow: grey noise on a tiny canvas, blown up by CSS
+  function snow() {
+    if (performance.now() > noiseUntil) { canvas.classList.remove('live'); return; }
+    const img = ctx.createImageData(canvas.width, canvas.height);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    requestAnimationFrame(snow);
+  }
+  function burst(ms: number) {
+    if (calm) return;
+    noiseUntil = performance.now() + ms;
+    canvas.classList.add('live');
+    requestAnimationFrame(snow);
+  }
+  function showOsd() {
+    osd.classList.add('shown');
+    clearTimeout(osdTimer);
+    osdTimer = window.setTimeout(() => osd.classList.remove('shown'), 2600);
+  }
+  function tune(i: number, play = true) {
+    current = (i + chans.length) % chans.length;
+    const c = chans[current];
+    keys.forEach((k, j) => k.setAttribute('aria-pressed', String(j === current)));
+    osd.querySelector('.osd-ch')!.textContent = 'CH ' + c.n;
+    osd.querySelector('.osd-name')!.textContent = c.name;
+    caption.textContent = c.desc;
+    video.setAttribute('aria-label', `CH ${c.n} · ${c.name}`);
+    video.poster = `/clips/${c.clip}.jpg`;
+    video.src = `/clips/${c.clip}.${webm ? 'webm' : 'mp4'}`;
+    burst(380);
+    showOsd();
+    if (play && on) video.play().catch(() => {});
+  }
+  function powerOn() {
+    if (on) return;
+    on = true;
+    tv.classList.add('on');
+    tune(current);
+  }
+  function powerOff() {
+    on = false;
+    tv.classList.remove('on');
+    video.pause();
+  }
+
+  keys.forEach((k) => k.addEventListener('click', () => { if (!on) { on = true; tv.classList.add('on'); } tune(+k.dataset.ch!); }));
+  power.addEventListener('click', () => (on ? powerOff() : powerOn()));
+  video.addEventListener('ended', () => tune(current + 1));
+
+  // turn on when it comes into view; rest when it leaves
+  new IntersectionObserver((entries) => {
+    visible = entries[0].isIntersecting;
+    if (visible && !on && !calm && !tv.dataset.touched) { tv.dataset.touched = '1'; powerOn(); }
+    else if (visible && on) video.play().catch(() => {});
+    else if (!visible) video.pause();
+  }, { threshold: 0.45 }).observe(tv);
+</script>
+
+<style>
+  .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
+  .tv { max-width: 980px; margin: 0 auto; }
+  .bezel {
+    padding: clamp(10px, 2.2vw, 24px) clamp(10px, 2.2vw, 24px) 12px; border-radius: 28px;
+    background: linear-gradient(170deg, #241d38 0%, #120d22 55%, #0a0714 100%);
+    border: 1px solid #2c2446;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 0 1px #05030a;
+  }
+  .screen {
+    position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #050308;
+    border-radius: 22px / 18px;
+    box-shadow: inset 0 0 0 3px #05030a, 0 0 40px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s;
+    filter: saturate(1.12) contrast(1.06) brightness(1.04); transform: scale(1.015); }
+  .tv.on video { opacity: 1; }
+  .static { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0; transition: opacity .15s; mix-blend-mode: screen; }
+  .static.live { opacity: .85; }
+  .fx { position: absolute; inset: 0; pointer-events: none; }
+  .scan { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.32) 2px 3px); animation: roll 9s linear infinite; }
+  @keyframes roll { from { background-position: 0 0; } to { background-position: 0 300px; } }
+  .vignette { background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .6) 100%); }
+  .glass { background: linear-gradient(155deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,0) 32%), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.07), transparent 45%); }
+  /* the old set warming up: a line that opens into a picture */
+  .turnon { background: #e8fbff; opacity: 0; transform: scaleY(.004); }
+  .tv.on .turnon { animation: turnon .7s ease-out; }
+  @keyframes turnon {
+    0% { opacity: 1; transform: scale(.02, .004); }
+    35% { opacity: 1; transform: scale(1, .004); }
+    70% { opacity: .55; transform: scale(1, 1); }
+    100% { opacity: 0; transform: scale(1, 1); }
+  }
+  .osd {
+    position: absolute; top: 5%; left: 4%; z-index: 3; font-size: clamp(13px, 2vw, 22px); letter-spacing: 2px;
+    color: #7dff8a; text-shadow: 0 0 6px rgba(125, 255, 138, .8), 2px 0 0 rgba(255, 0, 80, .35); opacity: 0; transition: opacity .3s;
+  }
+  .osd.shown { opacity: 1; }
+  .tv:not(.on) .osd { opacity: 0; }
+  .panel { display: flex; align-items: center; gap: 14px; padding: 12px 6px 2px; }
+  .badge { height: 16px; width: auto; image-rendering: pixelated; opacity: .75; flex: none; }
+  .keys { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+  .key {
+    display: flex; align-items: baseline; gap: 7px; font: inherit; font-size: 12px; cursor: pointer; padding: 6px 10px;
+    color: #a79fbd; background: linear-gradient(#1f1932, #15102a); border: 1px solid #332a50; border-radius: 4px;
+    box-shadow: 0 2px 0 #05030a, inset 0 1px 0 rgba(255,255,255,.05); transition: color .15s, border-color .15s;
+  }
+  .key:hover { color: #efeaf5; border-color: #4a3f6e; }
+  .key[aria-pressed='true'] { color: #fff; border-color: var(--accent); box-shadow: 0 1px 0 #05030a, 0 0 12px color-mix(in srgb, var(--accent) 45%, transparent); transform: translateY(1px); }
+  .kn { opacity: .6; }
+  .power { width: 34px; height: 34px; border-radius: 50%; border: 1px solid #332a50; background: radial-gradient(circle at 40% 35%, #2a2242, #110c20); cursor: pointer; display: grid; place-items: center; flex: none; }
+  .led { width: 8px; height: 8px; border-radius: 50%; background: #3a1020; box-shadow: none; transition: background .2s, box-shadow .2s; }
+  .tv.on .led { background: #ff3b5c; box-shadow: 0 0 8px #ff3b5c; }
+  .caption { text-align: center; color: var(--fg); margin: 16px auto 0; max-width: 62ch; min-height: 3.4em; }
+  @media (max-width: 640px) { .kl { display: none; } .badge { display: none; } .keys { margin-left: 0; } }
+  @media (prefers-reduced-motion: reduce) { .scan { animation: none; } .tv.on .turnon { animation: none; } }
+</style>

@@ -1,0 +1,163 @@
+---
+// The middle of the home page: what you write, the assistant, privacy, themes,
+// free and open.
+import { T, type Lang } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang];
+const THEMES = [
+  { id: 'mutiny', name: 'Mutiny', bg: '#0e091d', fg: '#14B9B5', strong: '#66d2cf', accent: '#BE3F50' },
+  { id: 'blackgold', name: 'BlackGold', bg: '#0D0D0D', fg: '#ebdbb2', strong: '#F6F1DD', accent: '#BFA75D' },
+  { id: 'black-arch', name: 'Black Arch', bg: '#000000', fg: '#D4D4D4', strong: '#FFFFFF', accent: '#989898' },
+  { id: 'matrix', name: 'Matrix', bg: '#080C09', fg: '#8BC98C', strong: '#C5E6C6', accent: '#3CBF5C' },
+  { id: 'tokyo-night', name: 'Tokyo Night', bg: '#1a1b26', fg: '#a9b1d6', strong: '#c0caf5', accent: '#7aa2f7' },
+  { id: 'city-783', name: 'City 783', bg: '#181a1f', fg: '#b9bec6', strong: '#eceff2', accent: '#ad2222' }
+];
+---
+<section class="block" id="write">
+  <div class="wrap">
+    <p class="kicker">{t.write.kicker}</p>
+    <h2>{t.write.title}</h2>
+    <p class="lead">{t.write.sub}</p>
+    <ul class="types">
+      {t.write.types.map(([name, forms]) => <li><h3>{name}</h3><p>{forms}</p></li>)}
+    </ul>
+    <ul class="tools">
+      {t.write.tools.map(([name, desc]) => <li><h3>{name}</h3><p>{desc}</p></li>)}
+    </ul>
+  </div>
+</section>
+
+<section class="block" id="assistant">
+  <div class="wrap">
+    <p class="kicker">{t.ai.kicker}</p>
+    <h2>{t.ai.title}</h2>
+    <p class="lead">{t.ai.sub}</p>
+    <ul class="ai">
+      {t.ai.items.map(([name, desc], i) => <li><span class="glyph" aria-hidden="true">{['⚑', '✦', '?', '›_'][i]}</span><h3>{name}</h3><p>{desc}</p></li>)}
+    </ul>
+    <p class="providers">{t.ai.providers}</p>
+  </div>
+</section>
+
+<section class="block" id="privacy">
+  <div class="wrap">
+    <p class="kicker">{t.privacy.kicker}</p>
+    <h2>{t.privacy.title}</h2>
+    <p class="lead">{t.privacy.sub}</p>
+    <div class="ledger">
+      <div class="col stays"><h3>{t.privacy.staysTitle}</h3><ul>{t.privacy.stays.map((x) => <li>{x}</li>)}</ul></div>
+      <div class="col leaves"><h3>{t.privacy.leavesTitle}</h3><ul>{t.privacy.leaves.map((x) => <li>{x}</li>)}</ul></div>
+    </div>
+    <p class="note">{t.privacy.note}</p>
+  </div>
+</section>
+
+<section class="block" id="themes">
+  <div class="wrap">
+    <p class="kicker">{t.themes.kicker}</p>
+    <h2>{t.themes.title}</h2>
+    <p class="lead">{t.themes.sub}</p>
+    <div class="theme-grid">
+      {THEMES.map((th) => (
+        <button type="button" class="tcard" data-theme-pick={th.id} style={`--c-bg:${th.bg};--c-fg:${th.fg};--c-strong:${th.strong};--c-ac:${th.accent}`}>
+          <span class="mock" aria-hidden="true">
+            <span class="bar"><i></i><i></i><i></i></span>
+            <span class="page"><b>Words start mutinies</b><em></em><em></em><em class="short"></em><span class="mark">⚑</span></span>
+            <span class="side"><em></em><em></em></span>
+          </span>
+          <span class="tname">{th.name}</span>
+        </button>
+      ))}
+    </div>
+    <p class="note">{t.themes.omarchy}</p>
+  </div>
+</section>
+
+<section class="block" id="free">
+  <div class="wrap free">
+    <div>
+      <p class="kicker">{t.free.kicker}</p>
+      <h2>{t.free.title}</h2>
+      <p class="lead">{t.free.sub}</p>
+      <p class="links"><a class="btn primary" href="https://github.com/worldmutiny/mutiny">{t.free.github}</a> <a class="btn" href="https://github.com/hughhowey/neo">{t.free.neo}</a></p>
+    </div>
+    <ul class="points">{t.free.points.map((p) => <li>{p}</li>)}</ul>
+  </div>
+</section>
+
+<script>
+  // the theme cards drive the same switch as the menu's
+  document.querySelectorAll<HTMLElement>('.tcard').forEach((card) => card.addEventListener('click', () => {
+    const id = card.dataset.themePick!;
+    document.documentElement.setAttribute('data-theme', id);
+    try { localStorage.setItem('mutiny-theme', id); } catch { /* storage blocked */ }
+    mark();
+  }));
+  function mark() {
+    const now = document.documentElement.getAttribute('data-theme');
+    document.querySelectorAll<HTMLElement>('.tcard').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.themePick === now)));
+  }
+  mark();
+  new MutationObserver(mark).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>
+
+<style>
+  .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  p { margin: 0; }
+
+  .types { list-style: none; padding: 0; margin: 0 0 34px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .types li { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 18px; }
+  .types h3 { color: var(--accent); }
+  .types p { font-size: 14px; color: var(--fg); }
+  .tools { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 28px; }
+  .tools li { border-top: 1px solid var(--line); padding-top: 16px; }
+  .tools p { font-size: 14px; color: var(--muted); }
+
+  .ai { list-style: none; padding: 0; margin: 0 0 26px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .ai li { border: 1px solid var(--line); border-radius: 4px; padding: 18px; background: var(--surface); }
+  .glyph { display: inline-grid; place-items: center; min-width: 34px; height: 34px; padding: 0 6px; margin-bottom: 12px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .ai p { font-size: 14px; color: var(--fg); }
+  .providers { color: var(--muted); max-width: var(--text); font-size: 14.5px; }
+
+  .ledger { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .col { border: 1px solid var(--line); border-radius: 4px; padding: 20px 22px; }
+  .col ul { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .col li { padding-left: 26px; position: relative; font-size: 15px; }
+  .stays li::before { content: '■'; position: absolute; left: 2px; color: var(--strong); font-size: 12px; top: 3px; }
+  .leaves li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  .stays { background: var(--surface); }
+  .note { color: var(--muted); font-size: 14px; max-width: var(--text); }
+
+  .theme-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .tcard { font: inherit; text-align: left; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 10px; cursor: pointer; display: grid; gap: 10px; color: var(--fg); transition: border-color .15s, transform .15s; }
+  .tcard:hover { border-color: var(--strong); transform: translateY(-2px); }
+  .tcard[aria-pressed='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .tname { font-size: 14px; padding: 0 4px; }
+  .mock { display: grid; grid-template-columns: 1fr 34%; grid-template-rows: 14px 1fr; aspect-ratio: 16 / 9; background: var(--c-bg); border-radius: 4px; overflow: hidden; }
+  .bar { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; padding: 0 8px; border-bottom: 1px solid color-mix(in srgb, var(--c-fg) 15%, var(--c-bg)); }
+  .bar i { width: 22px; height: 3px; background: color-mix(in srgb, var(--c-fg) 55%, var(--c-bg)); }
+  .page { margin: 8px; padding: 8px 10px; background: color-mix(in srgb, var(--c-fg) 5%, var(--c-bg)); border: 1px solid color-mix(in srgb, var(--c-fg) 14%, var(--c-bg)); display: flex; flex-direction: column; gap: 5px; position: relative; }
+  .page b { color: var(--c-strong); font-size: 10px; line-height: 1.2; }
+  .page em { height: 4px; background: var(--c-fg); opacity: .8; }
+  .page em.short { width: 55%; }
+  .mark { position: absolute; right: 8px; bottom: 6px; font-size: 10px; color: var(--c-ac); }
+  .side { margin: 8px 8px 8px 0; border-left: 2px solid var(--c-ac); padding: 6px; display: flex; flex-direction: column; gap: 5px; background: color-mix(in srgb, var(--c-fg) 7%, var(--c-bg)); }
+  .side em { height: 3px; background: color-mix(in srgb, var(--c-fg) 60%, var(--c-bg)); }
+
+  .free { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; align-items: end; }
+  .free h2 { font-size: clamp(26px, 4vw, 42px); margin: 0 0 18px; }
+  .links { display: flex; gap: 12px; flex-wrap: wrap; }
+  .points { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; }
+  .points li { border-top: 1px solid var(--line); padding: 12px 0; color: var(--strong); }
+
+  @media (max-width: 900px) {
+    .types, .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tools, .ai { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; }
+    .free { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .types, .tools, .ai, .ledger, .theme-grid { grid-template-columns: 1fr; }
+  }
+</style>

@@ -2,6 +2,8 @@
 // The home page, in either language: the hero, the manifesto, the download.
 import { T, path, type Lang } from '../i18n';
 import { latestRelease, mb } from '../data/release';
+import Tv from './Tv.astro';
+import Sections from './Sections.astro';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -45,6 +47,10 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
     </div>
   </div>
 </section>
+
+<Tv lang={lang} />
+
+<Sections lang={lang} />
 
 <section class="block" id="download">
   <div class="wrap">
