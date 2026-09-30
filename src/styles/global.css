@@ -58,8 +58,8 @@ h1, h2, h3 { color: var(--strong); text-wrap: balance; line-height: 1.2; }
 .btn.primary:hover { filter: brightness(1.1); }
 
 /* sections */
-section.block { padding-block: clamp(64px, 11vw, 120px); border-top: 1px solid var(--line); }
-section.block > .wrap > h2 { font-size: clamp(28px, 4.6vw, 46px); margin: 0 0 22px; }
+section.block { padding-block: clamp(40px, 6vw, 72px); border-top: 1px solid var(--line); }
+section.block > .wrap > h2 { font-size: clamp(28px, 4.6vw, 46px); margin: 0 0 18px; }
 
 /* the CRT: faint scanlines over the hero */
 .scan { position: relative; isolation: isolate; }

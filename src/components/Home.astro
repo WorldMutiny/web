@@ -15,10 +15,10 @@ const OS = [
 ];
 const num = (i: number) => String(i + 1).padStart(2, '0');
 ---
-<section class="hero scan">
+<section class="hero">
   <div class="wrap hero-in">
     {rel.version && <a class="announce" href={rel.url}>{t.announce(rel.version)} <span aria-hidden="true">→</span></a>}
-    <img class="hero-logo glitch" src="/logo.svg" alt="Mutiny" width="720" height="200" />
+    <div class="scan logo-box"><img class="hero-logo glitch" src="/logo.svg" alt="Mutiny" width="720" height="200" /></div>
     <h1>{t.hero.title.split(/(?<=\.) /).map((line) => <span>{line}</span>)}</h1>
     <p class="sub">{t.hero.sub}</p>
     <div class="cta">
@@ -87,20 +87,21 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
 </script>
 
 <style>
-  .hero { padding-block: clamp(40px, 9vw, 110px) clamp(56px, 10vw, 120px); text-align: center; }
-  .hero-in { display: flex; flex-direction: column; align-items: center; gap: 24px; position: relative; z-index: 1; }
+  .hero { padding-block: clamp(12px, 2.5vw, 32px) clamp(40px, 6vw, 72px); text-align: center; }
+  .hero-in { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .logo-box { width: min(720px, 92%); line-height: 0; }
   .announce {
     font-size: 13px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); padding: 5px 12px; border-radius: 3px;
     background: var(--surface);
   }
   .announce:hover { border-color: var(--accent); color: var(--strong); }
-  .hero-logo { width: min(720px, 92%); height: auto; image-rendering: pixelated; margin-block: 10px 6px; }
+  .hero-logo { width: 100%; height: auto; image-rendering: pixelated; }
   .hero h1 { font-size: clamp(26px, 5vw, 50px); margin: 0; }
   .hero h1 span { display: block; }
   .sub { color: var(--fg); max-width: 60ch; margin: 0; font-size: clamp(15px, 1.8vw, 18px); }
   .cta { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
 
-  .intro { font-size: clamp(19px, 2.4vw, 25px); color: var(--strong); max-width: 46ch; margin: 0 0 44px; line-height: 1.45; }
+  .intro { font-size: clamp(19px, 2.4vw, 25px); color: var(--strong); max-width: 46ch; margin: 0 0 32px; line-height: 1.45; }
   .principles { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 44px; }
   .principles li:last-child { grid-column: 1 / -1; }
   @media (max-width: 700px) { .principles { grid-template-columns: 1fr; } }
@@ -108,7 +109,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
   .principles .n { color: var(--accent); font-size: 14px; padding-top: 3px; }
   .principles h3 { font-size: 19px; margin: 0 0 6px; }
   .principles p { margin: 0; color: var(--fg); }
-  .close { margin-top: 40px; display: flex; flex-direction: column; gap: 4px; }
+  .close { margin-top: 32px; display: flex; flex-direction: column; gap: 4px; }
   .join { font-size: clamp(22px, 3vw, 30px); color: var(--accent); font-weight: 700; margin: 0; }
   .sign { font-style: italic; color: var(--muted); margin: 0 0 14px; }
 
