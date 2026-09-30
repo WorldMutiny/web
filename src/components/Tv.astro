@@ -121,7 +121,7 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
   /* never taller than the window: the whole set, keys included, fits on screen */
-  .tv { width: min(760px, 100%, calc((100vh - 240px) * 1.6)); min-width: min(320px, 100%); margin: 0 auto; }
+  .tv { width: min(880px, 100%, calc((100vh - 200px) * 1.6)); min-width: min(320px, 100%); margin: 0 auto; }
   .bezel {
     padding: clamp(10px, 2.2vw, 24px) clamp(10px, 2.2vw, 24px) 12px; border-radius: 28px;
     background: linear-gradient(170deg, #241d38 0%, #120d22 55%, #0a0714 100%);
@@ -160,9 +160,9 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
   .tv:not(.on) .osd { opacity: 0; }
   .panel { display: flex; align-items: center; gap: 14px; padding: 12px 6px 2px; }
   .badge { height: 16px; width: auto; image-rendering: pixelated; opacity: .75; flex: none; }
-  .keys { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+  .keys { display: flex; gap: 6px; flex-wrap: nowrap; margin-left: auto; min-width: 0; }
   .key {
-    display: flex; align-items: baseline; gap: 7px; font: inherit; font-size: 12px; cursor: pointer; padding: 6px 10px;
+    display: flex; align-items: baseline; gap: 7px; white-space: nowrap; flex: none; font: inherit; font-size: 12px; cursor: pointer; padding: 6px 10px;
     color: #a79fbd; background: linear-gradient(#1f1932, #15102a); border: 1px solid #332a50; border-radius: 4px;
     box-shadow: 0 2px 0 #05030a, inset 0 1px 0 rgba(255,255,255,.05); transition: color .15s, border-color .15s;
   }
@@ -173,6 +173,8 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
   .led { width: 8px; height: 8px; border-radius: 50%; background: #3a1020; box-shadow: none; transition: background .2s, box-shadow .2s; }
   .tv.on .led { background: #ff3b5c; box-shadow: 0 0 8px #ff3b5c; }
   .caption { text-align: center; color: var(--fg); margin: 16px auto 0; max-width: 62ch; min-height: 3.4em; }
-  @media (max-width: 640px) { .kl { display: none; } .badge { display: none; } .keys { margin-left: 0; } }
+  /* one row of keys at any width: the logo goes first, then the names */
+  @media (max-width: 820px) { .badge { display: none; } .keys { margin-left: 0; } }
+  @media (max-width: 640px) { .kl { display: none; } }
   @media (prefers-reduced-motion: reduce) { .scan { animation: none; } .tv.on .turnon { animation: none; } }
 </style>
