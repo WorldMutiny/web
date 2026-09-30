@@ -120,7 +120,8 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
 
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
-  .tv { max-width: 980px; margin: 0 auto; }
+  /* never taller than the window: the whole set, keys included, fits on screen */
+  .tv { width: min(760px, 100%, calc((100vh - 240px) * 1.6)); min-width: min(320px, 100%); margin: 0 auto; }
   .bezel {
     padding: clamp(10px, 2.2vw, 24px) clamp(10px, 2.2vw, 24px) 12px; border-radius: 28px;
     background: linear-gradient(170deg, #241d38 0%, #120d22 55%, #0a0714 100%);
