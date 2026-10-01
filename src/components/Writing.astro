@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // One writing: the page you read. Literata for the text, like the page in
 // Mutiny; the sources numbered at the end, as Mutiny exports them.
 import { render } from 'astro:content';
@@ -40,7 +41,7 @@ const otherLang: Lang = lang === 'en' ? 'es' : 'en';
   </nav>
 </article>
 
-<script is:inline src="/js/reading-progress.js" defer></script>
+<script is:inline src={`/js/reading-progress.js?v=${V}`} defer></script>
 
 <style>
   .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50; pointer-events: none; }

@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // Every page: head, the menu (logo, links, theme, language, download) and the footer.
 import '../styles/global.css';
 import { T, path, writingsPath, type Lang } from '../i18n';
@@ -33,7 +34,7 @@ const THEMES = [
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={new URL('/icon-512.png', Astro.site).href} />
   <link rel="preload" href="/fonts/iAWriterDuoS-Regular.woff2" as="font" type="font/woff2" crossorigin />
-  <script src="/theme-boot.js" is:inline></script>
+  <script src={`/theme-boot.js?v=${V}`} is:inline></script>
 </head>
 <body>
   <a class="sr-only" href="#main">Skip to content</a>
@@ -79,7 +80,7 @@ const THEMES = [
     </div>
   </footer>
 
-  <script is:inline src="/js/theme-menu.js" defer></script>
+  <script is:inline src={`/js/theme-menu.js?v=${V}`} defer></script>
 </body>
 </html>
 

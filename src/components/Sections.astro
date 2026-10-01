@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // The middle of the home page: what you write, the assistant, privacy, themes,
 // free and open.
 import { T, type Lang } from '../i18n';
@@ -86,7 +87,7 @@ const THEMES = [
   </div>
 </section>
 
-<script is:inline src="/js/theme-cards.js" defer></script>
+<script is:inline src={`/js/theme-cards.js?v=${V}`} defer></script>
 
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }

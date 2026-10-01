@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // The home page, in either language: the hero, the manifesto, the download.
 import { T, path, type Lang } from '../i18n';
 import { latestRelease, mb } from '../data/release';
@@ -84,7 +85,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
   </div>
 </section>
 
-<script is:inline src="/js/download-os.js" defer></script>
+<script is:inline src={`/js/download-os.js?v=${V}`} defer></script>
 
 <style>
   .hero { padding-block: clamp(12px, 2.5vw, 32px) clamp(40px, 6vw, 72px); text-align: center; }

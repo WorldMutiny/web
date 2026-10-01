@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // One chapter of the manual, laid out like Omarchy's: the chapters down the
 // left, the wordmark and "MANUAL" on top, the chapter, then previous / next.
 import { type Lang } from '../i18n';
@@ -36,7 +37,7 @@ const L = lang === 'en' ? { chapters: 'Chapters', prev: 'Previous', next: 'Next'
   </article>
 </div>
 
-<script is:inline src="/js/manual-toc.js" defer></script>
+<script is:inline src={`/js/manual-toc.js?v=${V}`} defer></script>
 
 <style>
   .manual { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 48px; padding-block: 24px 72px; align-items: start; }

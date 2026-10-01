@@ -1,4 +1,5 @@
 ---
+import { V } from '../lib/build';
 // See it in action: the real app on an old CRT. Five channels; static between
 // them; it turns on when you reach it, pauses when you scroll away, and flips
 // to the next channel when a clip ends.
@@ -43,7 +44,7 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
   </div>
 </section>
 
-<script is:inline src="/js/tv.js" defer></script>
+<script is:inline src={`/js/tv.js?v=${V}`} defer></script>
 
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
