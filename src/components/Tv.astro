@@ -1,14 +1,25 @@
 ---
 import { V } from '../lib/build';
-// See it in action: the real app on an old CRT. Five channels; static between
-// them; it turns on when you reach it, pauses when you scroll away, and flips
-// to the next channel when a clip ends.
+// See it in action: an old CRT with five channels. Each channel is a close-up
+// of Mutiny drawn in HTML, so the words stay sharp at any size. What's written
+// here is each scene's poster frame (what you see without JavaScript, or with
+// reduced motion); public/js/tv.js takes it apart and plays it back: typing,
+// the pointer, the assistant. Static between channels; it turns on when you
+// reach it, rests when you scroll away, and moves on when a scene ends.
 import { T, type Lang } from '../i18n';
+import { THEMES } from '../data/themes';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const a = T[lang].action;
-const CLIPS = ['ch1-write', 'ch2-critique', 'ch3-versions', 'ch4-templates', 'ch5-themes'];
-const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[i], n: String(i + 1).padStart(2, '0') }));
+const sc = a.scenes;
+const SCENES = ['write', 'critique', 'versions', 'templates', 'themes'];
+const channels = a.channels.map(([name, desc], i) => ({ name, desc, scene: SCENES[i], n: String(i + 1).padStart(2, '0') }));
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+// *words* → the words a version changed
+const marks = (s: string) => esc(s).replace(/\*([^*]+)\*/g, '<mark>$1</mark>');
+const plain = (s: string) => s.replace(/\*/g, '');
+const w = sc.write, c = sc.critique, v = sc.versions, t = sc.templates;
+const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
 ---
 <section class="block" id="action">
   <div class="wrap">
@@ -16,10 +27,131 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
     <h2>{a.title}</h2>
     <p class="lead">{a.sub}</p>
 
-    <div class="tv" data-channels={JSON.stringify(channels)}>
+    <div class="tv" data-channels={JSON.stringify(channels)} data-themes={JSON.stringify(THEMES.map(({ id, name }) => ({ id, name })))}>
       <div class="bezel">
         <div class="screen">
-          <video muted playsinline preload="none" poster={`/clips/${CLIPS[0]}.jpg`} aria-label={`${a.channel} 01 · ${channels[0].name}`}></video>
+          <div class="stage" aria-live="off">
+
+            <!-- 01 WRITE: a page, a sentence, a mark with its note on the side -->
+            <div class="scene cur" data-scene="write" role="img" aria-label={`${a.channel} 01 · ${channels[0].name}`}>
+              <div class="app">
+                <div class="top"><i></i><i></i><i></i><span>{w.title}</span></div>
+                <div class="main">
+                  <div class="page">
+                    <p class="title" data-k="title" data-ph={w.untitled}>{w.title}</p>
+                    <p class="by">{w.byline}</p>
+                    <p class="body"><span data-k="p1">{w.p1}</span><span class="hl" data-k="marked">{w.marked}</span><span class="flag" data-k="flag">⚑</span><span data-k="p2">{w.p2}</span></p>
+                  </div>
+                  <div class="side">
+                    <p class="sh"><b>{sc.inText}</b> {sc.chat}</p>
+                    <p class="empty off" data-k="empty">{sc.noNotes}</p>
+                    <div class="card" data-k="note"><p class="tag">⚑ {w.tag}</p><p data-k="notetext">{w.note}</p></div>
+                  </div>
+                </div>
+                <div class="status"><span class="tabs">{sc.tabs.map((x, i) => <span class:list={{ on: i === 0 }}>{x}</span>)}</span><span class="count"><b data-k="count">{words(w.title + ' ' + w.p1 + w.marked + w.p2)}</b> {sc.words}</span></div>
+              </div>
+              <ul class="menu off" data-k="menu">{w.menu.map(([x, key], i) => <li data-k={i === 1 ? 'pick' : undefined}><span>{x}</span><kbd>{key}</kbd></li>)}</ul>
+            </div>
+
+            <!-- 02 CRITIQUE: the assistant marks the section and explains on the side -->
+            <div class="scene" data-scene="critique" role="img" aria-label={`${a.channel} 02 · ${channels[1].name}`}>
+              <div class="app">
+                <div class="top"><i></i><i></i><i></i><span>{c.title}</span></div>
+                <div class="main">
+                  <div class="page">
+                    <p class="title small">{c.title}</p>
+                    <p class="h">{c.h}</p>
+                    <p class="body">{c.s.map((s, i) => <><span class:list={['s', { focus: i === 2 }]} data-k={`s${i}`}>{s}</span><span class="star" data-k={`m${i}`}>✦</span>{' '}</>)}</p>
+                  </div>
+                  <div class="side">
+                    <p class="sh"><b>{sc.inText}</b> {sc.chat}</p>
+                    {c.cards.map(([tag, text, s], i) => <div class:list={['card', { act: i === 2 }]} data-k={`c${i}`} data-s={s}><p class="tag">✦ {tag}</p><p>{text}</p></div>)}
+                  </div>
+                </div>
+                <div class="status"><span class="tabs">{sc.tabs.map((x, i) => <span class:list={{ on: i === 0 }}>{x}</span>)}</span><span class="chip" data-k="chip" data-busy={c.reading}>{c.toast}</span></div>
+              </div>
+              <ul class="menu off" data-k="menu">{w.menu.map(([x, key], i) => <li data-k={i === 3 ? 'pick' : undefined}><span>{x}</span><kbd>{key}</kbd></li>)}</ul>
+            </div>
+
+            <!-- 03 VERSIONS: three other ways to say it, the changed words marked -->
+            <div class="scene" data-scene="versions" data-pick={v.pick} role="img" aria-label={`${a.channel} 03 · ${channels[2].name}`}>
+              <div class="app">
+                <div class="top"><i></i><i></i><i></i><span>{c.title}</span></div>
+                <div class="main solo">
+                  <div class="page">
+                    <p class="title small">{c.title}</p>
+                    <p class="body"><span>{v.before}</span><span class="target sel" data-k="target">{v.target}</span></p>
+                  </div>
+                </div>
+                <div class="status"><span class="tabs">{sc.tabs.map((x, i) => <span class:list={{ on: i === 0 }}>{x}</span>)}</span><span class="chip off" data-k="toast">{v.toast}</span></div>
+              </div>
+              <div class="dlg" data-k="dlg">
+                <p class="dt">{v.title}</p>
+                <div class="yours"><p class="tag">{v.yours}</p><p>{v.target}</p></div>
+                <div class="opts" data-k="opts">
+                  {v.options.map((o, i) => <div class="opt" data-k={`o${i}`} data-plain={plain(o)}><p set:html={marks(o)}></p><span class="use" data-k={`u${i}`}>{v.use}</span></div>)}
+                </div>
+                <p class="chips">{v.chips.map((x) => <span>{x}</span>)}</p>
+              </div>
+            </div>
+
+            <!-- 04 TEMPLATES: a new essay by Toulmin starts with its own outline -->
+            <div class="scene" data-scene="templates" role="img" aria-label={`${a.channel} 04 · ${channels[3].name}`}>
+              <div class="lib" data-k="lib">
+                <p class="lh"><span class="logo">MUTINY</span><span class="new" data-k="new">{t.create}</span></p>
+                <p class="ll">{t.library}</p>
+                <div class="covers">
+                  <span class="cover c1"><b>{c.title}</b><i>Maxx Darko</i></span>
+                  <span class="cover c2"><b>{w.title}</b><i>Maxx Darko</i></span>
+                  <span class="cover add">+</span>
+                </div>
+              </div>
+              <div class="app off" data-k="ed">
+                <div class="top"><i></i><i></i><i></i><span>{sc.write.untitled}</span></div>
+                <div class="main solo">
+                  <div class="page">
+                    <p class="title small ph">{sc.write.untitled}</p>
+                    <ol class="outline">{t.outline.map(([h, d], i) => <li data-k={`l${i}`}><b>{h}</b> <span>— {d}</span></li>)}</ol>
+                  </div>
+                </div>
+                <div class="status"><span class="tabs">{sc.tabs.map((x, i) => <span class:list={{ on: i === 2 }}>{x}</span>)}</span><span class="count"><b>0</b> {sc.words}</span></div>
+              </div>
+              <div class="dlg wide" data-k="dlg">
+                <p class="dt">{t.title}</p>
+                <div class="cols">
+                  <div class="types">{t.types.map(([n, d], i) => <div class:list={['tile', { on: i === 0 }]} data-k={`t${i}`}><b>{n}</b><span>{d}</span></div>)}</div>
+                  <div class="forms" data-k="forms">
+                    <p class="tag">{t.form}</p>
+                    {t.forms.map(([n, d], i) => <div class:list={['tile', { on: i === 0 }]} data-k={`f${i}`}><b>{n}</b><span>{d}</span></div>)}
+                  </div>
+                </div>
+                <p class="foot"><span class="ok" data-k="ok">{t.ok}</span></p>
+              </div>
+            </div>
+
+            <!-- 05 THEMES: the same page in each of the six themes -->
+            <div class="scene" data-scene="themes" role="img" aria-label={`${a.channel} 05 · ${channels[4].name}`}>
+              <div class="app">
+                <div class="top"><i></i><i></i><i></i><span>{w.title}</span></div>
+                <div class="main">
+                  <div class="page">
+                    <p class="title">{w.title}</p>
+                    <p class="by">{w.byline}</p>
+                    <p class="body"><span>{w.p1}</span><span class="hl">{w.marked}</span><span class="flag">⚑</span><span>{w.p2}</span></p>
+                  </div>
+                  <div class="side">
+                    <p class="sh"><b>{sc.inText}</b> {sc.chat}</p>
+                    <div class="card"><p class="tag">⚑ {w.tag}</p><p>{w.note}</p></div>
+                  </div>
+                </div>
+                <div class="status swatches">{THEMES.map((th, i) => <span class="sw" data-k={`w${i}`} style={`--sw-bg:${th.bg};--sw-ac:${th.accent}`}><i></i>{th.name}</span>)}</div>
+              </div>
+              <p class="tname" data-k="tname"><span data-k="tlabel">Mutiny</span><small data-k="follow">{sc.themes.follow}</small></p>
+              <div class="wipe" data-k="wipe"></div>
+            </div>
+
+            <svg class="ptr off" viewBox="0 0 14 20" aria-hidden="true"><path d="M1.5 1.5v14.2l3.6-3.4 2.6 6 2.5-1.1-2.6-5.8h5z" /></svg>
+          </div>
           <canvas class="static" width="160" height="100" aria-hidden="true"></canvas>
           <div class="osd" aria-hidden="true"><span class="osd-ch">CH 01</span> <span class="osd-name">{channels[0].name}</span></div>
           <div class="fx scan" aria-hidden="true"></div>
@@ -30,9 +162,9 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
         <div class="panel">
           <img class="badge" src="/logo.svg" alt="" height="16" />
           <div class="keys" role="group" aria-label={a.channel}>
-            {channels.map((c, i) => (
-              <button type="button" class="key" data-ch={i} aria-pressed={i === 0 ? 'true' : 'false'} title={`${a.channel} ${c.n} · ${c.name}`}>
-                <span class="kn">{c.n}</span><span class="kl">{c.name}</span>
+            {channels.map((ch, i) => (
+              <button type="button" class="key" data-ch={i} aria-pressed={i === 0 ? 'true' : 'false'} title={`${a.channel} ${ch.n} · ${ch.name}`}>
+                <span class="kn">{ch.n}</span><span class="kl">{ch.name}</span>
               </button>
             ))}
           </div>
@@ -49,7 +181,7 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }
   /* never taller than the window: the whole set, keys included, fits on screen */
-  .tv { width: min(880px, 100%, calc((100vh - 200px) * 1.6)); min-width: min(320px, 100%); margin: 0 auto; }
+  .tv { width: min(1040px, 100%, calc((100vh - 200px) * 1.6)); min-width: min(320px, 100%); margin: 0 auto; }
   .bezel {
     padding: clamp(10px, 2.2vw, 24px) clamp(10px, 2.2vw, 24px) 12px; border-radius: 28px;
     background: linear-gradient(170deg, #241d38 0%, #120d22 55%, #0a0714 100%);
@@ -58,19 +190,198 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
   }
   .screen {
     position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #050308;
-    border-radius: 22px / 18px;
+    border-radius: 22px / 18px; container: screen / size;
     box-shadow: inset 0 0 0 3px #05030a, 0 0 40px color-mix(in srgb, var(--accent) 22%, transparent);
   }
-  video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s;
-    filter: saturate(1.12) contrast(1.06) brightness(1.04); transform: scale(1.015); }
-  .tv.on video { opacity: 1; }
-  .static { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0; transition: opacity .15s; mix-blend-mode: screen; }
+  /* a phone gets a squarer set, so the words can be bigger */
+  @media (max-width: 640px) { .screen { aspect-ratio: 1 / 1; } }
+
+  /* ---------- the picture ---------- */
+  /* every size is in --k (1% of the screen's width), so the scene scales as one */
+  .stage { position: absolute; inset: 0; --k: 1cqw; transition: opacity .35s; filter: saturate(1.1) contrast(1.05); }
+  /* without JavaScript the poster frame just shows; with it, the set starts off */
+  .tv.js:not(.on) .stage { opacity: 0; }
+  @container screen (max-aspect-ratio: 5 / 4) { .stage { --k: 1.5cqw; } }
+  .scene {
+    /* the derived colours again, so a scene can wear a theme of its own */
+    --muted: color-mix(in srgb, var(--fg) 62%, var(--bg));
+    --faint: color-mix(in srgb, var(--fg) 38%, var(--bg));
+    --line: color-mix(in srgb, var(--fg) 16%, var(--bg));
+    --surface: color-mix(in srgb, var(--fg) 6%, var(--bg));
+    --surface-2: color-mix(in srgb, var(--fg) 11%, var(--bg));
+    position: absolute; inset: 0; display: none; overflow: hidden;
+    background: var(--bg); color: var(--fg); font-family: var(--font); font-size: calc(1.5 * var(--k)); line-height: 1.4;
+    transition: background-color .5s, color .5s;
+  }
+  .scene.cur { display: block; }
+  .scene p { margin: 0; }
+  .off { opacity: 0 !important; visibility: hidden; }
+
+  .app { position: absolute; inset: 0; display: grid; grid-template-rows: auto 1fr auto; transition: opacity .4s; }
+  .top { display: flex; align-items: center; gap: calc(.6 * var(--k)); padding: calc(1 * var(--k)) calc(2 * var(--k)); border-bottom: 1px solid var(--line); color: var(--faint); font-size: calc(1.3 * var(--k)); }
+  .top i { width: calc(.8 * var(--k)); height: calc(.8 * var(--k)); border-radius: 50%; background: var(--line); }
+  .top span { margin-left: calc(1 * var(--k)); letter-spacing: .04em; }
+  .main { display: grid; grid-template-columns: 1fr 31%; min-height: 0; }
+  .main.solo { grid-template-columns: 1fr; }
+  .page { padding: calc(3.4 * var(--k)) calc(5 * var(--k)) 0; overflow: hidden; font-family: var(--serif); }
+  .title { font-size: calc(5 * var(--k)); line-height: 1.12; font-weight: 700; color: var(--strong); min-height: 1.12em; }
+  .title.small { font-size: calc(3.8 * var(--k)); }
+  .title:empty::before { content: attr(data-ph); color: var(--faint); font-style: italic; font-weight: 400; }
+  .title.ph { color: var(--faint); font-style: italic; font-weight: 400; }
+  .by { font-family: var(--font); font-size: calc(1.2 * var(--k)); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: calc(1.2 * var(--k)) 0 calc(2.6 * var(--k)) !important; }
+  .h { font-size: calc(2.4 * var(--k)); font-weight: 700; color: var(--strong); margin: calc(2 * var(--k)) 0 calc(1.2 * var(--k)) !important; }
+  .body { font-size: calc(3 * var(--k)); line-height: 1.6; }
+  .title + .body { margin-top: calc(2 * var(--k)) !important; }
+  .stage :global(.caret) { display: inline-block; width: 2px; height: 1.05em; margin: 0 1px -0.15em; background: var(--strong); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hl { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--accent) 45%, transparent) 62%); transition: background .3s; }
+  .sel, .hl.sel { background: color-mix(in srgb, var(--accent) 38%, transparent); color: var(--strong); }
+  .flag { display: inline-block; color: var(--accent); font-size: .7em; vertical-align: super; margin-left: .1em; transition: opacity .3s, transform .3s; }
+  .star { color: var(--accent); font-size: .75em; vertical-align: super; margin-left: .1em; display: inline-block; transition: opacity .3s, transform .3s; }
+  .star.off { transform: scale(3); }
+  .s { transition: background .3s, color .3s; border-radius: 3px; }
+  .s.focus { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--strong); }
+  .target { transition: background .4s, color .4s; }
+  .target.flash { animation: flash 1.4s ease-out; }
+  @keyframes flash { from { background: color-mix(in srgb, var(--fg) 40%, transparent); color: var(--strong); } }
+
+  .side { border-left: 1px solid var(--line); padding: calc(2 * var(--k)) calc(1.6 * var(--k)); display: flex; flex-direction: column; gap: calc(1.2 * var(--k)); overflow: hidden; }
+  .sh { font-size: calc(1.2 * var(--k)); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .sh b { color: var(--accent); font-weight: 400; margin-right: calc(1 * var(--k)); }
+  .empty { color: var(--faint); text-align: center; font-size: calc(1.3 * var(--k)); margin-top: calc(3 * var(--k)) !important; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-left: 2px solid var(--accent); border-radius: calc(.5 * var(--k)); padding: calc(1.1 * var(--k)) calc(1.3 * var(--k)); font-size: calc(1.65 * var(--k)); line-height: 1.45; transition: opacity .45s, transform .45s, background .3s, border-color .3s; }
+  .card.off { transform: translateX(30%); }
+  .card.act { background: var(--surface-2); border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+  .tag { font-size: calc(1.1 * var(--k)); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: calc(.5 * var(--k)) !important; }
+
+  .status { display: flex; align-items: center; justify-content: space-between; gap: calc(1 * var(--k)); padding: calc(.9 * var(--k)) calc(2 * var(--k)); border-top: 1px solid var(--line); font-size: calc(1.25 * var(--k)); color: var(--muted); white-space: nowrap; }
+  .tabs { display: flex; gap: calc(.4 * var(--k)); }
+  .tabs span { padding: calc(.3 * var(--k)) calc(.9 * var(--k)); border-radius: calc(.4 * var(--k)); }
+  .tabs .on { background: var(--surface-2); color: var(--strong); }
+  .count b { color: var(--strong); font-weight: 400; }
+  .chip { padding: calc(.3 * var(--k)) calc(1 * var(--k)); border: 1px solid var(--line); border-radius: 99px; color: var(--strong); background: var(--surface); transition: opacity .3s; }
+  .chip.busy::after { content: '…'; display: inline-block; width: 1.2em; text-align: left; animation: dots 1s steps(4) infinite; overflow: hidden; vertical-align: bottom; }
+  @keyframes dots { from { width: 0; } to { width: 1.2em; } }
+
+  .menu {
+    position: absolute; z-index: 5; list-style: none; margin: 0; padding: calc(.6 * var(--k)) 0; min-width: calc(30 * var(--k));
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: calc(.6 * var(--k)); box-shadow: 0 calc(1 * var(--k)) calc(3 * var(--k)) rgba(0, 0, 0, .5);
+    font-size: calc(1.5 * var(--k)); transition: opacity .18s;
+  }
+  .menu li { display: flex; justify-content: space-between; gap: calc(2 * var(--k)); padding: calc(.5 * var(--k)) calc(1.4 * var(--k)); color: var(--fg); }
+  .menu li:nth-child(2) { border-top: 1px solid var(--line); margin-top: calc(.4 * var(--k)); padding-top: calc(.9 * var(--k)); }
+  .menu kbd { font: inherit; color: var(--faint); }
+  .menu li.press, .menu li.hover { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--strong); }
+
+  .dlg {
+    position: absolute; z-index: 4; left: 50%; top: 50%; width: 76%; transform: translate(-50%, -50%);
+    background: color-mix(in srgb, var(--fg) 7%, var(--bg)); border: 1px solid var(--line); border-radius: calc(1 * var(--k));
+    padding: calc(2 * var(--k)) calc(2.2 * var(--k)); box-shadow: 0 0 0 100vmax color-mix(in srgb, var(--bg) 60%, transparent), 0 calc(2 * var(--k)) calc(5 * var(--k)) rgba(0, 0, 0, .6);
+    display: flex; flex-direction: column; gap: calc(1.1 * var(--k)); transition: opacity .3s, transform .3s;
+  }
+  .dlg.off { transform: translate(-50%, -46%); }
+  .dlg.wide { width: 90%; }
+  .dt { font-family: var(--serif); font-size: calc(2.4 * var(--k)); color: var(--accent); }
+  .yours { padding: calc(.9 * var(--k)) calc(1.3 * var(--k)); background: var(--bg); border-radius: calc(.5 * var(--k)); font-family: var(--serif); font-size: calc(2.1 * var(--k)); color: var(--strong); }
+  .yours .tag { font-family: var(--font); color: var(--muted); }
+  .opts { display: flex; flex-direction: column; gap: calc(.8 * var(--k)); }
+  .opt { display: flex; align-items: flex-start; gap: calc(1.4 * var(--k)); padding: calc(.9 * var(--k)) calc(1.3 * var(--k)); border: 1px solid var(--line); border-radius: calc(.5 * var(--k)); font-family: var(--serif); font-size: calc(2.1 * var(--k)); line-height: 1.4; transition: opacity .35s, transform .35s, border-color .2s; }
+  .opt.off { transform: translateY(20%); }
+  .opt p { flex: 1; }
+  .opt :global(mark) { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--strong); border-radius: 2px; padding: 0 .1em; }
+  .use { flex: none; font-family: var(--font); font-size: calc(1.4 * var(--k)); padding: calc(.3 * var(--k)) calc(.9 * var(--k)); border: 1px solid var(--line); border-radius: calc(.4 * var(--k)); color: var(--fg); }
+  .use.press, .opt.pick { border-color: var(--accent); }
+  .use.press { background: var(--accent); color: var(--bg); }
+  .chips { display: flex; gap: calc(.6 * var(--k)); font-size: calc(1.2 * var(--k)); }
+  .chips span { padding: calc(.25 * var(--k)) calc(.9 * var(--k)); border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
+
+  /* the library and the New text dialog */
+  .lib { position: absolute; inset: 0; padding: calc(4 * var(--k)) calc(5 * var(--k)); transition: opacity .4s; }
+  .lh { display: flex; justify-content: space-between; align-items: center; }
+  .logo { color: var(--accent); letter-spacing: .5em; font-size: calc(2.6 * var(--k)); }
+  .new, .ok { background: var(--accent); color: var(--bg); padding: calc(.6 * var(--k)) calc(1.6 * var(--k)); border-radius: calc(.5 * var(--k)); font-size: calc(1.5 * var(--k)); }
+  .new.press, .ok.press { filter: brightness(1.3); }
+  .ll { margin-top: calc(4 * var(--k)) !important; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-size: calc(1.3 * var(--k)); }
+  .covers { display: flex; gap: calc(1.6 * var(--k)); margin-top: calc(1.6 * var(--k)); }
+  .cover { width: calc(11 * var(--k)); aspect-ratio: 2 / 3; border-radius: calc(.5 * var(--k)); padding: calc(1.2 * var(--k)); display: flex; flex-direction: column; justify-content: center; text-align: center; gap: calc(.8 * var(--k)); }
+  .cover b { font-family: var(--serif); font-size: calc(1.9 * var(--k)); line-height: 1.05; color: #fff; }
+  .cover i { font-style: normal; font-size: calc(.8 * var(--k)); letter-spacing: .2em; text-transform: uppercase; color: #ffffffb0; }
+  .c1 { background: linear-gradient(160deg, #1a6f7a, #3a1530 70%); }
+  .c2 { background: linear-gradient(170deg, #4a1638, #1a0f24); }
+  .add { border: 1px dashed var(--line); color: var(--muted); font-size: calc(3 * var(--k)); }
+  .cols { display: grid; grid-template-columns: 1.25fr 1fr; gap: calc(1.6 * var(--k)); }
+  .types { display: grid; grid-template-columns: 1fr 1fr; gap: calc(.8 * var(--k)); align-content: start; }
+  .forms { display: flex; flex-direction: column; gap: calc(.8 * var(--k)); transition: opacity .35s, transform .35s; }
+  .forms.off { transform: translateX(8%); }
+  .forms .tag { color: var(--muted); margin: 0 !important; }
+  .tile { border: 1px solid var(--line); border-radius: calc(.5 * var(--k)); padding: calc(.7 * var(--k)) calc(1 * var(--k)); display: flex; flex-direction: column; gap: calc(.2 * var(--k)); transition: border-color .2s, background .2s; }
+  .tile b { color: var(--strong); font-weight: 400; font-size: calc(1.75 * var(--k)); }
+  .tile span { color: var(--muted); font-size: calc(1.3 * var(--k)); line-height: 1.3; }
+  .tile.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .tile.on b { color: var(--accent); }
+  .foot { display: flex; justify-content: flex-end; }
+  .outline { list-style: none; counter-reset: o; padding: 0; margin: calc(2.4 * var(--k)) 0 0; display: flex; flex-direction: column; gap: calc(1.1 * var(--k)); font-size: calc(2.1 * var(--k)); }
+  .outline li { counter-increment: o; display: flex; gap: calc(1.4 * var(--k)); align-items: baseline; transition: opacity .35s, transform .35s; }
+  .outline li.off { transform: translateX(-4%); }
+  .outline li::before { content: counter(o); font-family: var(--font); color: var(--accent); font-size: .8em; width: 1.2em; }
+  .outline b { color: var(--strong); }
+  .outline span { color: var(--faint); font-style: italic; }
+
+  /* the themes channel */
+  .swatches { justify-content: flex-start; gap: calc(1.4 * var(--k)); overflow: hidden; }
+  .sw { display: inline-flex; align-items: center; gap: calc(.6 * var(--k)); padding: calc(.3 * var(--k)) calc(.8 * var(--k)); border-radius: calc(.4 * var(--k)); transition: background .3s, color .3s; }
+  .sw i { width: calc(1.2 * var(--k)); height: calc(1.2 * var(--k)); border-radius: 50%; background: var(--sw-bg); box-shadow: inset 0 0 0 calc(.35 * var(--k)) var(--sw-ac), 0 0 0 1px var(--line); }
+  .sw.on { background: var(--surface-2); color: var(--strong); }
+  .tname {
+    position: absolute; z-index: 3; left: calc(5 * var(--k)); bottom: calc(7 * var(--k)); display: flex; flex-direction: column; gap: calc(.8 * var(--k)); align-items: flex-start;
+    font-size: calc(3.2 * var(--k)); color: var(--accent); text-shadow: 0 0 calc(2 * var(--k)) var(--bg), 0 0 calc(1 * var(--k)) var(--bg);
+  }
+  .tname > span { background: var(--bg); padding: 0 calc(.6 * var(--k)); border: 1px solid var(--accent); border-radius: calc(.4 * var(--k)); transition: color .5s, border-color .5s, background .5s; }
+  .tname small { font-size: calc(1.4 * var(--k)); color: var(--strong); background: var(--bg); padding: calc(.3 * var(--k)) calc(.6 * var(--k)); transition: opacity .4s; }
+  .wipe { position: absolute; inset: 0; z-index: 6; pointer-events: none; background: linear-gradient(to right, transparent, color-mix(in srgb, #fff 18%, transparent) 45%, #fff 50%, color-mix(in srgb, #fff 18%, transparent) 55%, transparent); transform: translateX(-110%); opacity: .5; }
+  .wipe.go { transition: transform .7s cubic-bezier(.5, 0, .5, 1); transform: translateX(110%); }
+
+  /* the pointer */
+  .ptr { position: absolute; z-index: 9; left: 70%; top: 80%; width: calc(1.8 * var(--k)); height: auto; overflow: visible; transition-property: left, top, opacity; transition-timing-function: cubic-bezier(.45, .05, .25, 1); transition-duration: .7s; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); }
+  .ptr path { fill: #fff; stroke: #0b0814; stroke-width: 1.2; stroke-linejoin: round; }
+  .ptr.tap { animation: tap .3s; }
+  @keyframes tap { 50% { transform: scale(.82); } }
+
+  /* a phone: the side panel goes under the page, newest card at the bottom */
+  @container screen (max-aspect-ratio: 5 / 4) {
+    .main { grid-template-columns: 1fr; grid-template-rows: 1fr 32%; }
+    .title { font-size: calc(4 * var(--k)); }
+    .title.small { font-size: calc(3.2 * var(--k)); }
+    .body { font-size: calc(2.55 * var(--k)); line-height: 1.5; }
+    .by { margin-bottom: calc(1.6 * var(--k)) !important; }
+    /* themes: the page alone, its name below */
+    [data-scene='themes'] .main { grid-template-rows: 1fr; }
+    [data-scene='themes'] .side { display: none; }
+    .tname { left: calc(3 * var(--k)); bottom: calc(5.5 * var(--k)); font-size: calc(2.6 * var(--k)); }
+    .side { border-left: 0; border-top: 1px solid var(--line); justify-content: flex-end; padding-block: calc(1 * var(--k)); }
+    .side .sh, .side .empty { display: none; }
+    .page { padding: calc(2.4 * var(--k)) calc(3 * var(--k)) 0; }
+    .tabs span:nth-child(n + 4) { display: none; }
+    .dlg { width: 86%; }
+    .dlg.wide { width: 92%; }
+    .cols { grid-template-columns: 1fr; }
+    .types { grid-template-columns: 1fr 1fr 1fr; }
+    .tile span { display: none; }
+    .forms { display: grid; grid-template-columns: 1fr 1fr; }
+    .forms .tag { grid-column: 1 / -1; }
+    .chips { display: none; }
+    .sw { font-size: 0; gap: 0; }
+    .sw.on { font-size: calc(1.25 * var(--k)); gap: calc(.6 * var(--k)); }
+  }
+
+  /* ---------- the set ---------- */
+  .static { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; opacity: 0; transition: opacity .15s; mix-blend-mode: screen; z-index: 2; }
   .static.live { opacity: .85; }
-  .fx { position: absolute; inset: 0; pointer-events: none; }
-  .scan { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.32) 2px 3px); animation: roll 9s linear infinite; }
+  .fx { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+  .scan { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 3px); animation: roll 9s linear infinite; }
   @keyframes roll { from { background-position: 0 0; } to { background-position: 0 300px; } }
-  .vignette { background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, .6) 100%); }
-  .glass { background: linear-gradient(155deg, rgba(255,255,255,.09) 0%, rgba(255,255,255,0) 32%), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.07), transparent 45%); }
+  .vignette { background: radial-gradient(ellipse at center, transparent 62%, rgba(0, 0, 0, .55) 100%); }
+  .glass { background: linear-gradient(155deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 32%), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.06), transparent 45%); }
   /* the old set warming up: a line that opens into a picture */
   .turnon { background: #e8fbff; opacity: 0; transform: scaleY(.004); }
   .tv.on .turnon { animation: turnon .7s ease-out; }
@@ -81,7 +392,7 @@ const channels = a.channels.map(([name, desc], i) => ({ name, desc, clip: CLIPS[
     100% { opacity: 0; transform: scale(1, 1); }
   }
   .osd {
-    position: absolute; top: 5%; left: 4%; z-index: 3; font-size: clamp(13px, 2vw, 22px); letter-spacing: 2px;
+    position: absolute; top: 5%; left: 4%; z-index: 4; font-size: clamp(13px, 2vw, 22px); letter-spacing: 2px;
     color: #7dff8a; text-shadow: 0 0 6px rgba(125, 255, 138, .8), 2px 0 0 rgba(255, 0, 80, .35); opacity: 0; transition: opacity .3s;
   }
   .osd.shown { opacity: 1; }

@@ -41,7 +41,7 @@ export const T = {
     action: {
       kicker: 'See it in action',
       title: 'Tune in.',
-      sub: 'Five channels, recorded from the real app. Nothing staged, nothing sped up except the assistant thinking.',
+      sub: 'Five channels, each one a close-up of something Mutiny does. Change the channel whenever you like.',
       channels: [
         ['WRITE', 'A clean page. Mark what you still need and keep going; the note waits on the side.'],
         ['CRITIQUE', 'The assistant reads your section and leaves the objections a sharp editor would raise.'],
@@ -50,7 +50,60 @@ export const T = {
         ['THEMES', 'Six themes, and on Omarchy it follows your desktop live.']
       ],
       channel: 'Channel',
-      power: 'Play / pause'
+      power: 'Play / pause',
+      // the five scenes drawn inside the set (public/js/tv.js plays them);
+      // *words* between asterisks are the ones a version changed
+      scenes: {
+        tabs: ['Draft', 'Notes', 'Outline', 'Sources', 'Later'],
+        words: 'words',
+        inText: 'In the text',
+        chat: 'Chat',
+        noNotes: 'No notes yet',
+        write: {
+          untitled: 'Untitled',
+          title: 'Words start mutinies',
+          byline: 'Maxx Darko',
+          p1: 'Every change started as a sentence someone was afraid to write. Laws, revolutions and love letters were all ',
+          marked: 'written first',
+          p2: '. If the world is broken, write anyway.',
+          menu: [['Cut', 'Ctrl+X'], ['Add a Mark', 'Ctrl+Shift+M'], ['Cite a Source', 'Ctrl+Shift+K'], ['Critique This Section', 'Ctrl+Shift+C']],
+          tag: 'Mark',
+          note: 'Find one law that began as a letter.'
+        },
+        critique: {
+          title: 'The city we walk',
+          h: 'The problem',
+          s: ['Mexico City was designed for the car.', 'Walk ten blocks and you’ll see it: broken sidewalks, impossible crossings, footbridges three floors high.', 'The car is a minority.'],
+          cmd: 'Critique this section',
+          reading: 'Reading your section',
+          cards: [['Thesis', 'Your central claim is never stated. Say what you want changed.', 0], ['Logic', 'From broken sidewalks to “designed for the car” is a jump. Bridge it.', 1], ['Evidence', '“A minority” of what? Cite the survey: year, agency, figures.', 2]],
+          toast: '3 observations, marked ✦ in the text'
+        },
+        versions: {
+          before: 'Bogotá closes avenues on Sundays so people can walk. ',
+          target: 'That is not a mobility policy. It is a privilege with good press.',
+          title: 'Versions',
+          yours: 'Yours',
+          use: 'Use this',
+          chips: ['Clearer', 'Shorter', 'Stronger', 'Less formal'],
+          options: ['That isn’t *mobility* policy. It’s privilege with a *good publicist*.', '*Call it what it is:* not a mobility policy, *but* a privilege *the press applauds*.', '*This is no* mobility policy; it is privilege, *well reviewed*.'],
+          pick: 0,
+          toast: 'Replaced. Your original waits in Later.'
+        },
+        templates: {
+          library: 'In progress',
+          create: '+ New',
+          title: 'New text',
+          types: [['Essay', 'An argument, built to persuade.'], ['Free writing', 'No structure, just the page.'], ['Blog post', 'A hook, headings, a call to action.'], ['Newsletter', 'A letter to your subscribers.'], ['Script', 'Video or podcast, to be heard.'], ['Speech', 'A talk or a toast, said out loud.']],
+          form: 'Form',
+          forms: [['Toulmin', 'Claim, grounds, warrant, rebuttal.'], ['Peterson', 'Ten-odd sentences first.'], ['Dialectic', 'Thesis, antithesis, synthesis.'], ['They say / I say', 'Start from what others say.']],
+          ok: 'Create',
+          outline: [['Claim', 'what you hold to be true'], ['Grounds', 'the evidence you have'], ['Warrant', 'why that evidence supports the claim'], ['Backing', 'what holds the warrant up'], ['Rebuttal', 'the most serious objection'], ['Conclusion', 'what follows from all this']]
+        },
+        themes: {
+          follow: 'On Omarchy it follows your desktop, live.'
+        }
+      }
     },
     write: {
       kicker: 'What you write',
@@ -183,7 +236,7 @@ export const T = {
     action: {
       kicker: 'Míralo en acción',
       title: 'Sintoniza.',
-      sub: 'Cinco canales, grabados de la app real. Nada montado; solo aceleramos lo que tarda el asistente en pensar.',
+      sub: 'Cinco canales, cada uno un primer plano de algo que hace Mutiny. Cambia de canal cuando quieras.',
       channels: [
         ['ESCRIBIR', 'Una página limpia. Marca lo que te falta y sigue; la nota espera a un lado.'],
         ['CRÍTICA', 'El asistente lee tu sección y deja las objeciones que haría un buen editor.'],
@@ -192,7 +245,58 @@ export const T = {
         ['TEMAS', 'Seis temas, y en Omarchy sigue a tu escritorio en vivo.']
       ],
       channel: 'Canal',
-      power: 'Reproducir / pausar'
+      power: 'Reproducir / pausar',
+      scenes: {
+        tabs: ['Borrador', 'Notas', 'Esquema', 'Fuentes', 'Después'],
+        words: 'palabras',
+        inText: 'En el texto',
+        chat: 'Chat',
+        noNotes: 'Aún no hay notas',
+        write: {
+          untitled: 'Sin título',
+          title: 'Las palabras empiezan motines',
+          byline: 'Maxx Darko',
+          p1: 'Todo cambio empezó como una frase que alguien tenía miedo de escribir. Las leyes, las revoluciones y las cartas de amor fueron ',
+          marked: 'escritas primero',
+          p2: '. Si el mundo está roto, escribe de todos modos.',
+          menu: [['Cortar', 'Ctrl+X'], ['Añadir una marca', 'Ctrl+Shift+M'], ['Citar una fuente', 'Ctrl+Shift+K'], ['Criticar esta sección', 'Ctrl+Shift+C']],
+          tag: 'Marca',
+          note: 'Busca una ley que empezó como carta.'
+        },
+        critique: {
+          title: 'La ciudad que caminamos',
+          h: 'El problema',
+          s: ['La Ciudad de México se diseñó para el coche.', 'Camina diez cuadras y lo verás: banquetas rotas, cruces imposibles, puentes peatonales de tres pisos.', 'El coche es una minoría.'],
+          cmd: 'Criticar esta sección',
+          reading: 'Leyendo tu sección',
+          cards: [['Tesis', 'Nunca dices tu idea central. Di qué quieres que cambie.', 0], ['Lógica', 'De banquetas rotas a «diseñada para el coche» hay un salto. Únelo.', 1], ['Evidencia', '¿«Una minoría» de qué? Cita la encuesta: año, institución, cifras.', 2]],
+          toast: '3 observaciones, marcadas con ✦ en el texto'
+        },
+        versions: {
+          before: 'Bogotá cierra avenidas los domingos para que la gente camine. ',
+          target: 'Eso no es una política de movilidad. Es un privilegio con buena prensa.',
+          title: 'Versiones',
+          yours: 'La tuya',
+          use: 'Usar esta',
+          chips: ['Más clara', 'Más corta', 'Más fuerte', 'Menos formal'],
+          options: ['*No es* política de movilidad. Es privilegio con *buen publicista*.', '*Llamémoslo por su nombre:* no es política de movilidad, *sino* un privilegio *que la prensa aplaude*.', '*Esto no es* política de movilidad; es privilegio, *bien reseñado*.'],
+          pick: 0,
+          toast: 'Reemplazada. Tu original espera en Después.'
+        },
+        templates: {
+          library: 'En curso',
+          create: '+ Nuevo',
+          title: 'Texto nuevo',
+          types: [['Ensayo', 'Un argumento hecho para convencer.'], ['Escritura libre', 'Sin estructura, solo la página.'], ['Post de blog', 'Un gancho, subtítulos, una llamada a la acción.'], ['Newsletter', 'Una carta a tus suscriptores.'], ['Guion', 'Video o pódcast, para escucharse.'], ['Discurso', 'Una charla o un brindis, en voz alta.']],
+          form: 'Forma',
+          forms: [['Toulmin', 'Tesis, datos, garantía, refutación.'], ['Peterson', 'Primero unas diez frases.'], ['Dialéctica', 'Tesis, antítesis, síntesis.'], ['Ellos dicen / yo digo', 'Parte de lo que dicen otros.']],
+          ok: 'Crear',
+          outline: [['Tesis', 'lo que sostienes'], ['Datos', 'la evidencia que tienes'], ['Garantía', 'por qué esa evidencia apoya la tesis'], ['Respaldo', 'lo que sostiene la garantía'], ['Refutación', 'la objeción más seria'], ['Conclusión', 'lo que se sigue de todo esto']]
+        },
+        themes: {
+          follow: 'En Omarchy sigue a tu escritorio, en vivo.'
+        }
+      }
     },
     write: {
       kicker: 'Qué escribes',
