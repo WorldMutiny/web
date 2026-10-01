@@ -5,3 +5,4 @@ dist/
 
 # notes for the site, kept on this computer only
 private/
+.wrangler/
