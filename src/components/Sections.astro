@@ -64,7 +64,34 @@ const t = T[lang];
         </button>
       ))}
     </div>
-    <p class="note">{t.themes.omarchy}</p>
+    <!-- Omarchy: the desktop Mutiny follows, and the old laptop it was made on.
+         The laptop's screen wears whatever theme the cards above picked. -->
+    <div class="omarchy">
+      <svg class="laptop" viewBox="0 0 240 150" aria-hidden="true">
+        <rect class="lid" x="30" y="6" width="180" height="118" rx="8" />
+        <rect class="scr" x="38" y="14" width="164" height="100" rx="2" />
+        <rect class="bar" x="38" y="14" width="164" height="7" />
+        <circle class="dot" cx="44" cy="17.5" r="1.6" /><circle class="dot" cx="50" cy="17.5" r="1.6" /><circle class="dot" cx="56" cy="17.5" r="1.6" />
+        <rect class="txt strong" x="50" y="32" width="70" height="6" rx="1" />
+        <rect class="txt" x="50" y="46" width="96" height="3" rx="1" />
+        <rect class="txt" x="50" y="54" width="90" height="3" rx="1" />
+        <rect class="txt" x="50" y="62" width="98" height="3" rx="1" />
+        <rect class="txt" x="50" y="70" width="60" height="3" rx="1" />
+        <rect class="ac" x="112" y="68.5" width="3" height="5" />
+        <rect class="side" x="160" y="21" width="1" height="93" />
+        <rect class="card" x="166" y="30" width="30" height="16" rx="1.5" />
+        <rect class="card" x="166" y="50" width="30" height="16" rx="1.5" />
+        <path class="base" d="M4 126h232l-10 14H14z" />
+        <rect class="notch" x="104" y="126" width="32" height="3" rx="1.5" />
+      </svg>
+      <div class="om-text">
+        <p class="kicker">{t.themes.omarchy.kicker} <i class="live" aria-hidden="true"></i></p>
+        <p class="om-title">{t.themes.omarchy.title}</p>
+        <p class="om-sub">{t.themes.omarchy.sub}</p>
+        <p class="om-made">{t.themes.omarchy.made}</p>
+        <p><a class="btn" href="https://omarchy.org">{t.themes.omarchy.link} →</a></p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -109,6 +136,33 @@ const t = T[lang];
   .leaves li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
   .stays { background: var(--surface); }
   .note { color: var(--muted); font-size: 14px; max-width: var(--text); }
+  .omarchy {
+    display: grid; grid-template-columns: minmax(180px, 300px) 1fr; gap: clamp(20px, 4vw, 48px); align-items: center;
+    margin-top: 36px; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--surface);
+  }
+  .om-text { display: flex; flex-direction: column; gap: 10px; }
+  .om-text p { margin: 0; max-width: 62ch; }
+  .om-text .kicker { display: flex; align-items: center; gap: 10px; }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); animation: live 2s infinite; }
+  @keyframes live { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .om-title { font-size: clamp(18px, 2.2vw, 22px); color: var(--strong); line-height: 1.35; }
+  .om-sub { color: var(--muted); }
+  .om-made { color: var(--fg); padding-top: 10px; border-top: 1px solid var(--line); }
+  .om-text .btn { margin-top: 4px; }
+  /* the laptop takes the colours of the theme in use */
+  .laptop { width: 100%; height: auto; }
+  .lid { fill: #2b2b30; stroke: #45454d; }
+  .base { fill: #3a3a42; }
+  .notch { fill: #24242a; }
+  .scr { fill: var(--bg); transition: fill .4s; }
+  .bar { fill: var(--surface-2); transition: fill .4s; }
+  .dot { fill: var(--line); }
+  .txt { fill: var(--fg); opacity: .75; transition: fill .4s; }
+  .txt.strong { fill: var(--strong); opacity: 1; }
+  .ac, .side { fill: var(--accent); transition: fill .4s; }
+  .card { fill: var(--surface-2); stroke: var(--line); stroke-width: .5; }
+  @media (max-width: 700px) { .omarchy { grid-template-columns: 1fr; } .laptop { max-width: 260px; } }
+  @media (prefers-reduced-motion: reduce) { .live { animation: none; } }
 
   .theme-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
   .tcard { font: inherit; text-align: left; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 10px; cursor: pointer; display: grid; gap: 10px; color: var(--fg); transition: border-color .15s, transform .15s; }

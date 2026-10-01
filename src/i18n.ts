@@ -150,7 +150,13 @@ export const T = {
       kicker: 'Themes',
       title: 'Pick your flag. Change everything.',
       sub: 'Six themes for the whole app. Try them here: this page changes with them.',
-      omarchy: 'On Omarchy, Mutiny follows your desktop theme, live.'
+      omarchy: {
+        kicker: 'Made on Omarchy',
+        title: 'On Omarchy, Mutiny follows your desktop theme, live.',
+        sub: 'Change your desktop’s theme and Mutiny changes with it. No restart, no settings.',
+        made: 'Mutiny was built on a 2015 Intel MacBook Pro running Omarchy. Old hardware, new ideas: you don’t need a new machine to start a mutiny.',
+        link: 'Get Omarchy'
+      }
     },
     free: {
       kicker: 'Free. Open. Yours.',
@@ -345,7 +351,13 @@ export const T = {
       kicker: 'Temas',
       title: 'Elige tu bandera. Cambia todo.',
       sub: 'Seis temas para toda la app. Pruébalos aquí: esta página cambia con ellos.',
-      omarchy: 'En Omarchy, Mutiny sigue el tema de tu escritorio, en vivo.'
+      omarchy: {
+        kicker: 'Hecho en Omarchy',
+        title: 'En Omarchy, Mutiny sigue el tema de tu escritorio, en vivo.',
+        sub: 'Cambia el tema de tu escritorio y Mutiny cambia con él. Sin reiniciar, sin ajustes.',
+        made: 'Mutiny se hizo en una MacBook Pro Intel de 2015 con Omarchy. Máquina vieja, ideas nuevas: no necesitas una computadora nueva para empezar un motín.',
+        link: 'Conoce Omarchy'
+      }
     },
     free: {
       kicker: 'Libre. Abierto. Tuyo.',
