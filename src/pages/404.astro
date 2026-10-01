@@ -1,0 +1,22 @@
+---
+// Lost: any address that doesn't exist. In both languages, since we can't know which.
+import Base from '../layouts/Base.astro';
+---
+<Base lang="en" alt="/es/" title="Lost at sea — Mutiny">
+  <section class="wrap lost">
+    <img src="/icon.svg" alt="" width="96" height="96" class="glitch" />
+    <p class="code">404</p>
+    <h1>Lost at sea.</h1>
+    <p>This page doesn't exist, or it went overboard. <a href="/">Back to the ship</a> · <a href="/manual/">Manual</a></p>
+    <p lang="es" class="es">Esta página no existe, o cayó por la borda. <a href="/es/">Volver al barco</a> · <a href="/es/manual/">Manual</a></p>
+  </section>
+</Base>
+
+<style>
+  .lost { text-align: center; padding-block: clamp(48px, 10vw, 120px); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .lost img { image-rendering: pixelated; }
+  .code { margin: 8px 0 0; color: var(--accent); letter-spacing: 6px; font-size: 14px; }
+  h1 { font-size: clamp(32px, 6vw, 56px); margin: 0 0 6px; }
+  p { margin: 0; }
+  .es { color: var(--muted); }
+</style>
