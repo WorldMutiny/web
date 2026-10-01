@@ -7,7 +7,7 @@ export const T = {
   en: {
     htmlTitle: 'Mutiny — Words start mutinies',
     description: 'A free, open-source writing app for essays and ideas. Local, private, with an AI that questions you instead of writing for you.',
-    nav: { manifesto: 'Manifesto', manual: 'Manual', github: 'GitHub', download: 'Join the mutiny', theme: 'Theme', otherLang: 'ES', otherLangName: 'Español' },
+    nav: { manifesto: 'Manifesto', writings: 'Writings', manual: 'Manual', github: 'GitHub', download: 'Join the mutiny', theme: 'Theme', otherLang: 'ES', otherLangName: 'Español' },
     announce: (v: string) => `Mutiny ${v} is out`,
     hero: {
       title: 'The world is broken. Write anyway.',
@@ -107,6 +107,23 @@ export const T = {
       github: 'Mutiny on GitHub',
       neo: 'NEO by Hugh Howey'
     },
+    writings: {
+      kicker: 'Writings',
+      title: 'Dispatches from the mutiny.',
+      sub: 'Essays, arguments and loose ideas, written in Mutiny and published here as they were written.',
+      by: 'by',
+      min: (n: number) => `${n} min read`,
+      draft: 'Draft',
+      sources: 'Sources',
+      back: 'All writings',
+      other: 'Leer en español',
+      written: 'Written in Mutiny.',
+      writtenSub: 'A free, open-source app for essays and ideas. Yours too.',
+      empty: 'Nothing published yet. The first dispatch is on its way.',
+      rss: 'RSS',
+      newer: 'Newer',
+      older: 'Older'
+    },
     download: {
       kicker: "For the ones who won't stay quiet.",
       title: 'Join the mutiny',
@@ -132,7 +149,7 @@ export const T = {
   es: {
     htmlTitle: 'Mutiny — Las palabras empiezan motines',
     description: 'Una app gratuita y de código abierto para escribir ensayos e ideas. Local, privada, con una IA que te cuestiona en lugar de escribir por ti.',
-    nav: { manifesto: 'Manifiesto', manual: 'Manual', github: 'GitHub', download: 'Únete al motín', theme: 'Tema', otherLang: 'EN', otherLangName: 'English' },
+    nav: { manifesto: 'Manifiesto', writings: 'Escritos', manual: 'Manual', github: 'GitHub', download: 'Únete al motín', theme: 'Tema', otherLang: 'EN', otherLangName: 'English' },
     announce: (v: string) => `Ya salió Mutiny ${v}`,
     hero: {
       title: 'El mundo está roto. Escribe de todos modos.',
@@ -148,7 +165,7 @@ export const T = {
         ['Las palabras cambian el mundo.', 'Leyes, revoluciones, disculpas y cartas de amor: todo se escribió primero. Si el mundo está roto, el arreglo empieza en una página. La tuya cuenta.'],
         ['Dilo con tu nombre.', 'Mutiny es para quien firma lo que piensa. La voz que cuenta es la que da la cara por sus palabras y se arriesga a equivocarse en público.'],
         ['Tu página es tuya.', 'Sin cuentas, sin nube, sin nadie leyendo por encima de tu hombro. Tus textos son archivos normales en tu computadora. Si Mutiny desapareciera mañana, cada palabra seguiría ahí.'],
-        ['La IA pregunta. Tú decides.', 'Un buen editor te hace pensar más. El asistente de Mutiny investiga, duda y cuestiona tu argumento. Nunca escribe tus ideas por ti y nunca cambia una palabra sin tu sí.'],
+        ['La IA pregunta. Tú decides.', 'Un buen editor te hace pensar más. El asistente de Mutiny investiga, duda y cuestiona tu argumento. Nunca escribe tus ideas por ti y nunca cambia una palabra sin que tú lo autorices.'],
         ['Argumenta en serio.', 'Las opiniones son baratas; los argumentos cuestan trabajo. Mutiny te da las herramientas que los escritores siempre se ganaron a pulso: un esquema antes del borrador, fuentes que puedes citar, la objeción más fuerte de frente.'],
         ['Libre de verdad.', 'Mutiny es gratis y de código abierto, y lo será siempre. Tómalo, léelo, cámbialo, compártelo. Una herramienta para disentir no puede tener dueño.'],
         ['Empieza antes de estar listo.', 'Un borrador no tiene que ser bueno; solo tiene que existir. El motín empieza con la primera línea.']
@@ -199,7 +216,7 @@ export const T = {
     ai: {
       kicker: 'El asistente',
       title: 'Un editor, no un escritor fantasma.',
-      sub: 'Opcional, y lo eliges tú. Investiga los datos que marcas, cuestiona tu argumento y te ofrece otras maneras de decirlo. Nunca escribe tus ideas por ti y nunca cambia una palabra sin tu sí.',
+      sub: 'Opcional, y lo eliges tú. Investiga los datos que marcas, cuestiona tu argumento y te ofrece otras maneras de decirlo. Nunca escribe tus ideas por ti y nunca cambia una palabra sin que tú lo autorices.',
       items: [
         ['Investigar', 'Marca un dato y lo busca: una respuesta y fuentes con la cita textual que la respalda.'],
         ['Criticar', 'De tres a siete observaciones, ancladas donde van. Distintas para un ensayo, un post o un discurso.'],
@@ -232,6 +249,23 @@ export const T = {
       github: 'Mutiny en GitHub',
       neo: 'NEO de Hugh Howey'
     },
+    writings: {
+      kicker: 'Escritos',
+      title: 'Despachos desde el motín.',
+      sub: 'Ensayos, argumentos e ideas sueltas, escritos en Mutiny y publicados aquí tal como se escribieron.',
+      by: 'por',
+      min: (n: number) => `${n} min de lectura`,
+      draft: 'Borrador',
+      sources: 'Fuentes',
+      back: 'Todos los escritos',
+      other: 'Read in English',
+      written: 'Escrito en Mutiny.',
+      writtenSub: 'Una app gratuita y de código abierto para ensayos e ideas. También es tuya.',
+      empty: 'Todavía no hay nada publicado. El primer despacho viene en camino.',
+      rss: 'RSS',
+      newer: 'Más reciente',
+      older: 'Anterior'
+    },
     download: {
       kicker: 'Para quienes no se van a quedar callados.',
       title: 'Únete al motín',
@@ -257,3 +291,5 @@ export const T = {
 } as const;
 
 export const path = (lang: Lang, p: string) => (lang === 'en' ? p : '/es' + p);
+// the writings live under a word of each language
+export const writingsPath = (lang: Lang, slug = '') => (lang === 'en' ? '/writings/' : '/es/escritos/') + (slug ? slug + '/' : '');

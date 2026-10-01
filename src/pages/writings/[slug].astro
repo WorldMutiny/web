@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import Writing from '../../components/Writing.astro';
+import { writings, slugOf } from '../../lib/writings';
+
+export async function getStaticPaths() {
+  return (await writings('en')).map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const alt = d.translation ? '/es/escritos/' + d.translation + '/' : '/es/escritos/';
+---
+<Base lang="en" alt={alt} title={`${d.title} — Mutiny`} description={d.description || d.subtitle}><Writing lang="en" entry={entry} /></Base>

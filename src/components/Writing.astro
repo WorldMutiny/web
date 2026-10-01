@@ -1,0 +1,101 @@
+---
+// One writing: the page you read. Literata for the text, like the page in
+// Mutiny; the sources numbered at the end, as Mutiny exports them.
+import { render } from 'astro:content';
+import { T, path, writingsPath, type Lang } from '../i18n';
+import { writings, slugOf, minutes, longDate, type Writing } from '../lib/writings';
+interface Props { lang: Lang; entry: Writing }
+const { lang, entry } = Astro.props;
+const t = T[lang].writings;
+const d = entry.data;
+const { Content } = await render(entry);
+const list = await writings(lang);
+const at = list.findIndex((w) => w.id === entry.id);
+const newer = at > 0 ? list[at - 1] : null;
+const older = at >= 0 && at < list.length - 1 ? list[at + 1] : null;
+const otherLang: Lang = lang === 'en' ? 'es' : 'en';
+---
+<div class="progress" aria-hidden="true"><i></i></div>
+<article class="post">
+  <header>
+    <p class="meta"><a href={writingsPath(lang)}>{t.kicker}</a> · {longDate(d.date, lang)} · {t.min(minutes(entry))}{d.draft && <span class="draft">{t.draft}</span>}</p>
+    <h1>{d.title}</h1>
+    {d.subtitle && <p class="subtitle">{d.subtitle}</p>}
+    <p class="byline">{t.by} <strong>{d.author}</strong>{d.translation && <> · <a href={writingsPath(otherLang, d.translation)} hreflang={otherLang}>{t.other}</a></>}</p>
+  </header>
+
+  <div class="essay" style={`--sources-label:'${t.sources}'`}>
+    <Content />
+  </div>
+
+  <aside class="mutiny">
+    <img src="/icon.svg" alt="" width="44" height="44" />
+    <div><p class="w">{t.written}</p><p>{t.writtenSub} <a href={path(lang, '/#download')}>{T[lang].nav.download} →</a></p></div>
+  </aside>
+
+  <nav class="pager">
+    {newer ? <a href={writingsPath(lang, slugOf(newer))}><small>{t.newer}</small>← {newer.data.title}</a> : <span></span>}
+    <a class="all" href={writingsPath(lang)}>{t.back}</a>
+    {older ? <a class="older" href={writingsPath(lang, slugOf(older))}><small>{t.older}</small>{older.data.title} →</a> : <span></span>}
+  </nav>
+</article>
+
+<script>
+  // how far through the text you are, as a thin line along the top
+  const bar = document.querySelector<HTMLElement>('.progress i')!;
+  const essay = document.querySelector<HTMLElement>('.essay')!;
+  const update = () => {
+    const r = essay.getBoundingClientRect();
+    const done = Math.min(1, Math.max(0, (innerHeight * 0.6 - r.top) / r.height));
+    bar.style.transform = `scaleX(${done})`;
+  };
+  addEventListener('scroll', update, { passive: true });
+  addEventListener('resize', update);
+  update();
+</script>
+
+<style>
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50; pointer-events: none; }
+  .progress i { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); }
+  .post { max-width: 720px; margin: 0 auto; padding-block: 28px 80px; }
+  header { margin-bottom: 40px; }
+  .meta { font-size: 13px; color: var(--muted); margin: 0 0 18px; }
+  .meta a { color: var(--accent); text-decoration: none; letter-spacing: 1.5px; text-transform: uppercase; }
+  .draft { margin-left: 10px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--bg); background: var(--accent); padding: 1px 7px; border-radius: 2px; font-weight: 700; }
+  h1 { font-family: var(--serif); font-size: clamp(34px, 6vw, 56px); line-height: 1.1; margin: 0 0 12px; }
+  .subtitle { font-family: var(--serif); font-style: italic; font-size: clamp(19px, 2.6vw, 24px); color: var(--fg); margin: 0 0 18px; }
+  .byline { font-size: 14px; color: var(--muted); margin: 0; }
+  .byline strong { color: var(--strong); font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
+
+  .essay { font-family: var(--serif); font-size: clamp(18px, 2vw, 20px); line-height: 1.75; color: var(--fg); }
+  .essay :global(p) { margin: 0 0 1.1em; }
+  .essay :global(h2) { font-family: var(--font); font-size: 22px; margin: 2em 0 .7em; }
+  .essay :global(h3) { font-family: var(--font); font-size: 18px; margin: 1.6em 0 .6em; }
+  .essay :global(strong) { color: var(--strong); }
+  .essay :global(a) { color: var(--strong); }
+  .essay :global(blockquote) { margin: 1.4em 0; padding-left: 1.2em; border-left: 3px solid var(--accent); font-style: italic; }
+  .essay :global(ul), .essay :global(ol) { padding-left: 1.4em; margin: 0 0 1.1em; }
+  /* *** in Mutiny: a scene break */
+  .essay :global(hr) { border: none; text-align: center; margin: 2em 0; }
+  .essay :global(hr)::after { content: '*  *  *'; color: var(--muted); letter-spacing: .3em; }
+  .essay :global(sup a), .essay :global(a[data-footnote-ref]) { color: var(--accent); text-decoration: none; font-family: var(--font); font-size: .75em; padding-left: 1px; }
+  .essay :global(.footnotes) { margin-top: 3em; padding-top: 1.2em; border-top: 1px solid var(--line); font-family: var(--font); font-size: 14px; color: var(--muted); }
+  .essay :global(.footnotes h2) { display: none; }
+  .essay :global(.footnotes)::before { content: var(--sources-label); display: block; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; font-size: 12px; margin-bottom: 10px; }
+  .essay :global(.footnotes ol) { padding-left: 1.6em; }
+  .essay :global(.footnotes li) { margin: .4em 0; overflow-wrap: anywhere; }
+  .essay :global(.footnotes p) { margin: 0; display: inline; }
+  .essay :global(.data-footnote-backref) { text-decoration: none; margin-left: 4px; }
+
+  .mutiny { display: flex; gap: 16px; align-items: center; margin-top: 56px; padding: 20px 22px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; }
+  .mutiny img { image-rendering: pixelated; flex: none; }
+  .mutiny p { margin: 0; font-size: 14px; }
+  .mutiny .w { color: var(--strong); font-weight: 700; font-size: 15px; }
+  .pager { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: end; margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; }
+  .pager a { color: var(--fg); text-decoration: none; display: flex; flex-direction: column; gap: 2px; }
+  .pager a:hover { color: var(--strong); }
+  .pager small { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .pager .all { text-align: center; color: var(--accent); }
+  .pager .older { text-align: right; }
+  @media (max-width: 640px) { .pager { grid-template-columns: 1fr; } .pager .all, .pager .older { text-align: left; } }
+</style>

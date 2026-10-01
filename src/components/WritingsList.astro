@@ -1,0 +1,66 @@
+---
+// The writings page: the newest one large, the rest as a list.
+import { T, writingsPath, type Lang } from '../i18n';
+import { writings, slugOf, minutes, longDate } from '../lib/writings';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = T[lang].writings;
+const list = await writings(lang);
+const [first, ...rest] = list;
+---
+<div class="wrap list">
+  <header>
+    <p class="kicker">{t.kicker}</p>
+    <h1>{t.title}</h1>
+    <p class="sub">{t.sub} <a class="rss" href={writingsPath(lang) + 'rss.xml'}>{t.rss}</a></p>
+  </header>
+
+  {!first && <p class="empty">{t.empty}</p>}
+
+  {first && (
+    <a class="lead-post" href={writingsPath(lang, slugOf(first))}>
+      <p class="meta">{longDate(first.data.date, lang)} · {t.min(minutes(first))}{first.data.draft && <span class="draft">{t.draft}</span>}</p>
+      <h2>{first.data.title}</h2>
+      {first.data.subtitle && <p class="subtitle">{first.data.subtitle}</p>}
+      {first.data.description && <p class="desc">{first.data.description}</p>}
+      <p class="more">→</p>
+    </a>
+  )}
+
+  {rest.length > 0 && (
+    <ol class="posts">
+      {rest.map((w) => (
+        <li><a href={writingsPath(lang, slugOf(w))}>
+          <span class="date">{longDate(w.data.date, lang)}</span>
+          <span class="txt"><strong>{w.data.title}{w.data.draft && <span class="draft">{t.draft}</span>}</strong>{(w.data.subtitle || w.data.description) && <em>{w.data.subtitle || w.data.description}</em>}</span>
+          <span class="min">{t.min(minutes(w))}</span>
+        </a></li>
+      ))}
+    </ol>
+  )}
+</div>
+
+<style>
+  .list { padding-block: 32px 80px; }
+  header { margin-bottom: 36px; }
+  h1 { font-size: clamp(30px, 5vw, 50px); margin: 0 0 14px; }
+  .sub { max-width: var(--text); margin: 0; color: var(--fg); }
+  .rss { font-size: 13px; margin-left: 8px; }
+  .empty { color: var(--muted); border: 1px dashed var(--line); padding: 28px; border-radius: 4px; }
+  .draft { margin-left: 10px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--bg); background: var(--accent); padding: 1px 7px; border-radius: 2px; vertical-align: middle; font-family: var(--font); font-weight: 700; }
+  .lead-post { display: block; text-decoration: none; color: var(--fg); border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: clamp(22px, 4vw, 40px); margin-bottom: 34px; transition: border-color .15s; }
+  .lead-post:hover { border-color: var(--accent); }
+  .meta { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+  .lead-post h2 { font-family: var(--serif); font-size: clamp(28px, 4.4vw, 46px); margin: 0 0 8px; color: var(--strong); }
+  .subtitle { font-family: var(--serif); font-style: italic; font-size: clamp(18px, 2.2vw, 22px); margin: 0 0 14px; color: var(--fg); }
+  .desc { margin: 0; max-width: var(--text); }
+  .more { margin: 16px 0 0; color: var(--accent); font-size: 20px; }
+  .posts { list-style: none; padding: 0; margin: 0; }
+  .posts a { display: grid; grid-template-columns: 170px 1fr auto; gap: 18px; align-items: baseline; padding: 16px 4px; border-top: 1px solid var(--line); text-decoration: none; color: var(--fg); }
+  .posts a:hover strong { color: var(--accent); }
+  .date, .min { font-size: 13px; color: var(--muted); }
+  .txt { display: flex; flex-direction: column; gap: 2px; }
+  .txt strong { font-family: var(--serif); font-size: 21px; color: var(--strong); font-weight: 700; }
+  .txt em { font-family: var(--serif); color: var(--fg); }
+  @media (max-width: 640px) { .posts a { grid-template-columns: 1fr; gap: 4px; } }
+</style>

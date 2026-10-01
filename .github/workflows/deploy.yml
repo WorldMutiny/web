@@ -24,6 +24,8 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm run build
+        env:
+          MUTINY_PRODUCTION: '1'   # drafts stay out of the published site
       - name: Deploy
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
         run: |
