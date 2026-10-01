@@ -195,6 +195,8 @@ export const T = {
     },
     footer: {
       line: 'Built on NEO by Hugh Howey. Made by Maxx Darko and the mutineers. MIT licensed.',
+      // the machine it was made on: an old laptop is enough to start something
+      made: ['Made with', 'and on purpose, on a 2015 Intel MacBook Pro running', 'You don’t need a new machine to start a mutiny.'],
       contact: 'Contact',
       privacy: 'This site uses Cloudflare Web Analytics: no cookies, nothing that follows you.'
     }
@@ -388,6 +390,7 @@ export const T = {
     },
     footer: {
       line: 'Construido sobre NEO de Hugh Howey. Hecho por Maxx Darko y los amotinados. Licencia MIT.',
+      made: ['Hecho con', 'y a propósito, en una MacBook Pro Intel de 2015 con', 'No necesitas una máquina nueva para empezar un motín.'],
       contact: 'Contacto',
       privacy: 'Este sitio usa Cloudflare Web Analytics: sin cookies, nada que te siga.'
     }
