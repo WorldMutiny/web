@@ -1,0 +1,37 @@
+<!doctype html>
+<!-- The picture social networks show when worldmutiny.com is shared (1200×630).
+     scripts/og/make-og.sh renders it once per language: card.html?lang=en|es -->
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: 'iA Writer Duo'; src: url('../../public/fonts/iAWriterDuoS-Regular.woff2'); font-weight: 400; }
+  @font-face { font-family: 'iA Writer Duo'; src: url('../../public/fonts/iAWriterDuoS-Bold.woff2'); font-weight: 700; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    background: #0e091d; color: #66d2cf; font-family: 'iA Writer Duo', monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; text-align: center; position: relative;
+  }
+  /* the CRT scanlines the site wears */
+  body::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(14, 9, 29, .45) 3px 4px); pointer-events: none; }
+  .logo { width: 900px; height: auto; image-rendering: pixelated; }
+  h1 { margin: 0; font-size: 62px; line-height: 1.12; font-weight: 700; letter-spacing: -.5px; }
+  p { margin: 0; font-size: 26px; color: #14B9B5; letter-spacing: 1px; }
+  p b { color: #BE3F50; font-weight: 400; }
+</style>
+</head>
+<body>
+  <img class="logo" src="../../public/logo.svg" alt="" />
+  <h1 id="h"></h1>
+  <p id="p"></p>
+  <script>
+    const T = {
+      en: ['The world is broken.<br>Write anyway.', 'worldmutiny.com <b>·</b> free and open-source writing app'],
+      es: ['El mundo está roto.<br>Escribe de todos modos.', 'worldmutiny.com <b>·</b> app de escritura libre y gratuita']
+    };
+    const [h, p] = T[new URLSearchParams(location.search).get('lang') || 'en'];
+    document.getElementById('h').innerHTML = h;
+    document.getElementById('p').innerHTML = p;
+  </script>
+</body>
+</html>
