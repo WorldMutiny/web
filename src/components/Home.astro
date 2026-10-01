@@ -20,7 +20,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
 ---
 <section class="hero">
   <div class="wrap hero-in">
-    {rel.version && <a class="announce" href={rel.url}>{t.announce(rel.version)} <span aria-hidden="true">→</span></a>}
+    {rel.version && <a class="announce" href="#download">{t.announce(rel.version)} <span aria-hidden="true">→</span></a>}
     <div class="scan logo-box"><img class="hero-logo glitch" src="/logo.svg" alt="Mutiny" width="720" height="200" /></div>
     <h1>{t.hero.title.split(/(?<=\.) /).map((line) => <span>{line}</span>)}</h1>
     <p class="sub">{t.hero.sub}</p>
