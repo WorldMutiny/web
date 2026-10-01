@@ -86,21 +86,7 @@ const THEMES = [
   </div>
 </section>
 
-<script>
-  // the theme cards drive the same switch as the menu's
-  document.querySelectorAll<HTMLElement>('.tcard').forEach((card) => card.addEventListener('click', () => {
-    const id = card.dataset.themePick!;
-    document.documentElement.setAttribute('data-theme', id);
-    try { localStorage.setItem('mutiny-theme', id); } catch { /* storage blocked */ }
-    mark();
-  }));
-  function mark() {
-    const now = document.documentElement.getAttribute('data-theme');
-    document.querySelectorAll<HTMLElement>('.tcard').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.themePick === now)));
-  }
-  mark();
-  new MutationObserver(mark).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-</script>
+<script is:inline src="/js/theme-cards.js" defer></script>
 
 <style>
   .lead { color: var(--fg); max-width: var(--text); margin: -6px 0 30px; }

@@ -40,19 +40,7 @@ const otherLang: Lang = lang === 'en' ? 'es' : 'en';
   </nav>
 </article>
 
-<script>
-  // how far through the text you are, as a thin line along the top
-  const bar = document.querySelector<HTMLElement>('.progress i')!;
-  const essay = document.querySelector<HTMLElement>('.essay')!;
-  const update = () => {
-    const r = essay.getBoundingClientRect();
-    const done = Math.min(1, Math.max(0, (innerHeight * 0.6 - r.top) / r.height));
-    bar.style.transform = `scaleX(${done})`;
-  };
-  addEventListener('scroll', update, { passive: true });
-  addEventListener('resize', update);
-  update();
-</script>
+<script is:inline src="/js/reading-progress.js" defer></script>
 
 <style>
   .progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 50; pointer-events: none; }

@@ -36,10 +36,7 @@ const L = lang === 'en' ? { chapters: 'Chapters', prev: 'Previous', next: 'Next'
   </article>
 </div>
 
-<script>
-  // on a phone the chapter list starts folded, so the chapter comes first
-  if (matchMedia('(max-width: 860px)').matches) document.querySelector('.toc details')?.removeAttribute('open');
-</script>
+<script is:inline src="/js/manual-toc.js" defer></script>
 
 <style>
   .manual { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 48px; padding-block: 24px 72px; align-items: start; }
