@@ -35,7 +35,7 @@ const tv = document.querySelector('.tv');
     clearTimeout(osdTimer);
     osdTimer = window.setTimeout(() => osd.classList.remove('shown'), 2600);
   }
-  function tune(i= true) {
+  function tune(i, play = true) {
     current = (i + chans.length) % chans.length;
     const c = chans[current];
     keys.forEach((k, j) => k.setAttribute('aria-pressed', String(j === current)));
