@@ -1,0 +1,5 @@
+# Cloudflare Pages, like finsafiltros and airpak: the static site in dist/.
+# (Without this file, newer wrangler versions take the project for a Worker.)
+name = "worldmutiny"
+compatibility_date = "2026-09-30"
+pages_build_output_dir = "dist"

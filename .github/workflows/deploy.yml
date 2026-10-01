@@ -28,9 +28,8 @@ jobs:
           MUTINY_PRODUCTION: '1'   # drafts stay out of the published site
       - name: Deploy
         if: env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != ''
-        run: |
-          npx --yes wrangler@4 pages project create worldmutiny --production-branch main 2>/dev/null || true
-          npx --yes wrangler@4 pages deploy dist --project-name worldmutiny --branch main
+        # Cloudflare Pages (wrangler.toml), like finsafiltros and airpak
+        run: npx wrangler pages deploy dist --project-name worldmutiny --branch main
       - name: Not deployed yet
         if: env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == ''
         run: echo "::notice::Built, not deployed — add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID to the repository secrets."
